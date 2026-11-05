@@ -910,6 +910,46 @@ html, body {
     background: var(--bg-subtle);
 }
 
+.history-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+.btn-sm:hover {
+    background: var(--ink-black);
+    color: #FFFFFF;
+    border-color: var(--ink-black);
+}
+
+.btn-sm.btn-danger {
+    color: var(--accent-terracotta);
+    border-color: var(--border-subtle);
+}
+
+.btn-sm.btn-danger:hover {
+    background: var(--accent-terracotta);
+    color: #FFFFFF;
+    border-color: var(--accent-terracotta);
+}
+
 /* Minimal Toast */
 .precimetal-toast {
     position: fixed;
@@ -982,6 +1022,43 @@ html, body {
     font-weight: 800;
 }
 
+.print-batch-box {
+    background: #F9F7F3;
+    border: 1px solid #D5CCC0;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-top: 18px;
+    margin-bottom: 20px;
+}
+
+.print-batch-box h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    color: #181818;
+}
+
+.print-batch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 0.82rem;
+}
+
+.print-batch-hero {
+    grid-column: 1 / -1;
+    background: #181818;
+    color: #FFFFFF;
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .print-signatures {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1011,14 +1088,20 @@ html, body {
         width: 100%;
         background: #ffffff !important;
         padding: 0 !important;
+        margin: 0 !important;
         display: block !important;
     }
     .modal-box {
         border: none !important;
         box-shadow: none !important;
         max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
-    .modal-head, .modal-foot {
+    .modal-head, .modal-foot, .no-print, .quote-toolbar {
         display: none !important;
+    }
+    .print-sheet-wrapper {
+        padding: 10px 0 !important;
     }
 }

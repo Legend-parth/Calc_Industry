@@ -116,6 +116,15 @@
             this.historyTableBody = document.getElementById('history-table-body');
             this.historySearch = document.getElementById('history-search');
             this.historyCountBadge = document.getElementById('history-count-badge');
+
+            // Quotation Modal Controls
+            this.quoteJobSelect = document.getElementById('quote-job-select');
+            this.quoteBatchQty = document.getElementById('quote-batch-qty');
+            this.quoteClientName = document.getElementById('quote-client-name');
+            this.quoteRefNo = document.getElementById('quote-ref-no');
+            this.quoteSourceStatus = document.getElementById('quote-source-status');
+            this.btnLoadQuoteToCalc = document.getElementById('btn-load-quote-to-calc');
+            this.activeQuoteRecord = null;
         }
 
         /**
@@ -330,6 +339,22 @@
             if (btnOpenPrint) btnOpenPrint.addEventListener('click', () => this.openPrintModal());
             if (btnClosePrint) btnClosePrint.addEventListener('click', () => this.closePrintModal());
             if (btnTriggerPrint) btnTriggerPrint.addEventListener('click', () => window.print());
+
+            if (this.quoteJobSelect) {
+                this.quoteJobSelect.addEventListener('change', () => this.handleQuoteJobChange());
+            }
+            if (this.quoteBatchQty) {
+                this.quoteBatchQty.addEventListener('input', () => this.renderCurrentQuoteSheet());
+            }
+            if (this.quoteClientName) {
+                this.quoteClientName.addEventListener('input', () => this.renderCurrentQuoteSheet());
+            }
+            if (this.quoteRefNo) {
+                this.quoteRefNo.addEventListener('input', () => this.renderCurrentQuoteSheet());
+            }
+            if (this.btnLoadQuoteToCalc) {
+                this.btnLoadQuoteToCalc.addEventListener('click', () => this.loadActiveQuoteToCalculator());
+            }
 
             // Close modal on click outside
             window.addEventListener('click', (e) => {
@@ -690,7 +715,7 @@
             this.historyTableBody.innerHTML = '';
 
             if (list.length === 0) {
-                this.historyTableBody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 32px;">No calculation records found.</td></tr>`;
+                this.historyTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 32px;">No calculation records found.</td></tr>`;
                 return;
             }
 
@@ -699,17 +724,21 @@
                 tr.innerHTML = `
                     <td><strong>${this.escapeHTML(item.itemCode)}</strong><br><small style="color: var(--text-muted);">${new Date(item.createdAt).toLocaleDateString()} ${new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small></td>
                     <td><span class="badge-geom">${item.geometry.toUpperCase()}</span></td>
-                    <td>Rod: ${item.rod.toFixed(2)} mm<br>L: ${item.length.toFixed(2)} mm</td>
-                    <td>Exp: ${item.expectedWeight.toFixed(2)} g<br>Act: ${item.actualWeight.toFixed(2)} g</td>
-                    <td>${item.wastageWeight.toFixed(2)} g (${item.materialUtilizationPct.toFixed(0)}% util)</td>
-                    <td>₹${item.honey.toFixed(2)} /kg</td>
+                    <td>${item.rod.toFixed(2)} × ${item.length.toFixed(2)} mm</td>
+                    <td>Exp: ${item.expectedWeight.toFixed(2)}g<br>Act: ${item.actualWeight.toFixed(2)}g</td>
                     <td>₹${item.padtar.toFixed(2)}</td>
                     <td><strong class="highlight-val">₹${item.finalSellingPrice.toFixed(2)}</strong></td>
                     <td class="history-actions">
+                        <button class="btn-sm btn-outline btn-quote-record" data-id="${item.id}" title="Generate quotation sheet">📄 Quote</button>
                         <button class="btn-sm btn-outline btn-load-record" data-id="${item.id}" title="Load into calculator">Load</button>
                         <button class="btn-sm btn-danger btn-delete-record" data-id="${item.id}" title="Delete record">✕</button>
                     </td>
                 `;
+
+                tr.querySelector('.btn-quote-record').addEventListener('click', () => {
+                    this.closeHistoryModal();
+                    this.openPrintModal(item);
+                });
 
                 tr.querySelector('.btn-load-record').addEventListener('click', () => {
                     this.loadSavedRecord(item);
@@ -788,142 +817,282 @@
 
         /**
          * Printable Quotation Sheet Modal
+         * Supports passing an explicit history record or defaulting to current calculation / latest record
          */
-        openPrintModal() {
-            if (!this.currentResult) return;
-            const res = this.currentResult;
-            const qty = parseInt(this.inputBatchQty ? this.inputBatchQty.value : 1000, 10) || 1000;
-            const batch = this.calculator.calculateBatch(res, qty);
+        openPrintModal(selectedRecord = null) {
+            // Populate Job Selector dropdown
+            if (this.quoteJobSelect) {
+                this.quoteJobSelect.innerHTML = '';
 
+                // Option 1: Current Active Calculation
+                const currentRes = this.currentResult;
+                const hasCurrentData = currentRes && (currentRes.rod > 0 || currentRes.expectedWeight > 0);
+                const optCurrent = document.createElement('option');
+                optCurrent.value = 'current';
+                optCurrent.textContent = hasCurrentData
+                    ? `⚡ Current Active Calculation (${currentRes.itemCode || 'Untitled'} - ₹${currentRes.finalSellingPrice.toFixed(2)}/pc)`
+                    : '⚡ Current Active Calculation (Empty)';
+                this.quoteJobSelect.appendChild(optCurrent);
+
+                // Option 2..N: Saved History records
+                const historyList = this.storage.history || [];
+                historyList.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    const dateStr = new Date(item.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    opt.textContent = `📋 Saved: ${item.itemCode || 'Part'} - ${item.geometry.toUpperCase()} ${item.rod.toFixed(2)}×${item.length.toFixed(2)}mm (₹${item.finalSellingPrice.toFixed(2)}) [${dateStr}]`;
+                    this.quoteJobSelect.appendChild(opt);
+                });
+
+                // Decide which record is active:
+                if (selectedRecord && selectedRecord.id) {
+                    this.activeQuoteRecord = selectedRecord;
+                    this.quoteJobSelect.value = selectedRecord.id;
+                } else if (hasCurrentData) {
+                    this.activeQuoteRecord = null; // 'current'
+                    this.quoteJobSelect.value = 'current';
+                } else if (historyList.length > 0) {
+                    // Default to most recent history item if current calculator is empty
+                    this.activeQuoteRecord = historyList[0];
+                    this.quoteJobSelect.value = historyList[0].id;
+                } else {
+                    this.activeQuoteRecord = null;
+                    this.quoteJobSelect.value = 'current';
+                }
+            }
+
+            // Sync Batch Quantity with batch simulator input
+            if (this.quoteBatchQty && this.inputBatchQty) {
+                this.quoteBatchQty.value = this.inputBatchQty.value || 1000;
+            }
+
+            this.renderCurrentQuoteSheet();
+
+            if (this.modalPrint) this.modalPrint.classList.add('active');
+        }
+
+        handleQuoteJobChange() {
+            if (!this.quoteJobSelect) return;
+            const val = this.quoteJobSelect.value;
+            if (val === 'current') {
+                this.activeQuoteRecord = null;
+            } else {
+                this.activeQuoteRecord = this.storage.history.find(h => h.id === val) || null;
+            }
+            this.renderCurrentQuoteSheet();
+        }
+
+        loadActiveQuoteToCalculator() {
+            if (!this.activeQuoteRecord) return;
+            this.loadSavedRecord(this.activeQuoteRecord);
+            this.closePrintModal();
+            this.showNotification(`Loaded ${this.activeQuoteRecord.itemCode} into active calculator.`);
+        }
+
+        renderCurrentQuoteSheet() {
             const printContainer = document.getElementById('print-sheet-content');
-            if (printContainer) {
+            if (!printContainer) return;
+
+            let res;
+
+            if (this.activeQuoteRecord) {
+                const rec = this.activeQuoteRecord;
+                res = this.calculator.calculate({
+                    geometry: rec.geometry,
+                    rod: rec.rod,
+                    length: rec.length,
+                    honey: rec.honey,
+                    actualProductWeight: rec.actualWeight,
+                    labour: rec.majuri,
+                    profitPercent: rec.profitPercent,
+                    itemCode: rec.itemCode
+                });
+                if (this.quoteSourceStatus) {
+                    this.quoteSourceStatus.textContent = `Saved Record: ${rec.itemCode}`;
+                }
+                if (this.btnLoadQuoteToCalc) {
+                    this.btnLoadQuoteToCalc.style.display = 'inline-flex';
+                }
+            } else {
+                res = this.currentResult;
+                if (this.quoteSourceStatus) {
+                    this.quoteSourceStatus.textContent = 'Live Active Calculation';
+                }
+                if (this.btnLoadQuoteToCalc) {
+                    this.btnLoadQuoteToCalc.style.display = 'none';
+                }
+            }
+
+            // Check if calculation has inputs
+            const hasInputs = res && (res.rod > 0 || res.expectedWeight > 0 || res.honey > 0);
+
+            if (!hasInputs) {
                 printContainer.innerHTML = `
-                    <div class="print-header">
-                        <div>
-                            <h2>PRECISION TURNED COMPONENTS COSTING REPORT</h2>
-                            <p class="print-sub">Official Technical Calculation & Quotation Sheet</p>
-                        </div>
-                        <div class="print-meta">
-                            <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN')}</div>
-                            <div><strong>Job Ref:</strong> ${this.escapeHTML(res.itemCode)}</div>
-                        </div>
-                    </div>
-
-                    <table class="print-table">
-                        <thead>
-                            <tr>
-                                <th>Parameter</th>
-                                <th>Specified Value</th>
-                                <th>Calculation Reference & Formula</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Geometry & Rod Section</td>
-                                <td><strong>${res.geometry.toUpperCase()}</strong></td>
-                                <td>${res.geometry === 'round' ? 'Cylindrical Rod (Round)' : res.geometry === 'square' ? 'Square Section' : 'Hexagon Across Flats'}</td>
-                            </tr>
-                            <tr>
-                                <td>Rod Dimension (R) × Length (L)</td>
-                                <td><strong>${res.rod.toFixed(2)} mm × ${res.length.toFixed(2)} mm</strong></td>
-                                <td>Length includes +${res.lengthAdjustment.toFixed(1)} mm parting allowance</td>
-                            </tr>
-                            <tr>
-                                <td>Geometry Coefficient</td>
-                                <td><code>${res.coefficientUsed}</code></td>
-                                <td>W = R² × (L + ${res.lengthAdjustment}) × Coeff</td>
-                            </tr>
-                            <tr>
-                                <td>Theoretical Expected Weight</td>
-                                <td><strong>${res.formatted.expectedWeight} grams</strong></td>
-                                <td>Raw rod required per piece</td>
-                            </tr>
-                            <tr>
-                                <td>Actual Finished Part Weight</td>
-                                <td><strong>${res.formatted.actualWeight} grams</strong></td>
-                                <td>Finished product net piece weight</td>
-                            </tr>
-                            <tr>
-                                <td>Wastage / Chhol Weight</td>
-                                <td><strong>${res.formatted.wastageWeight} grams</strong></td>
-                                <td>Material - Product (Utilization: ${res.formatted.materialUtilizationPct}%)</td>
-                            </tr>
-                            <tr>
-                                <td>Metal Market Benchmark (Honey)</td>
-                                <td><strong>₹${res.formatted.honey} / kg</strong></td>
-                                <td>Base market rate</td>
-                            </tr>
-                            <tr>
-                                <td>Raw Metal Purchase Rate (Rod)</td>
-                                <td><strong>₹${res.formatted.rodRate} / kg</strong></td>
-                                <td>Honey + ₹${res.markup.toFixed(2)} standard rod surcharge</td>
-                            </tr>
-                            <tr>
-                                <td>Scrap / Chhol Selling Rate</td>
-                                <td><strong>₹${res.formatted.scrapRate} / kg</strong></td>
-                                <td>Honey - ${res.scrapDeductionPercent.toFixed(1)}% recovery credit</td>
-                            </tr>
-                            <tr class="highlight-row">
-                                <td>Gross Raw Metal Cost</td>
-                                <td>₹${res.formatted.rawMaterialCost} / pc</td>
-                                <td>(${res.formatted.expectedWeight}g × ₹${res.formatted.rodRate}) / 1000</td>
-                            </tr>
-                            <tr class="highlight-row">
-                                <td>Less: Scrap Recovery Credit</td>
-                                <td>-₹${res.formatted.scrapRecoveryValue} / pc</td>
-                                <td>(${res.formatted.wastageWeight}g × ₹${res.formatted.scrapRate}) / 1000</td>
-                            </tr>
-                            <tr class="key-row">
-                                <td>Net Effective Metal Cost (Material Rs.)</td>
-                                <td><strong>₹${res.formatted.netMaterialCost} / pc</strong></td>
-                                <td>Gross Metal Cost - Scrap Recovery</td>
-                            </tr>
-                            <tr>
-                                <td>Labour Charges (Majuri Rs.)</td>
-                                <td>₹${res.formatted.majuri} / pc</td>
-                                <td>Machining, tooling & labour charges</td>
-                            </tr>
-                            <tr class="key-row">
-                                <td>Production Cost (Padtar Rs.)</td>
-                                <td><strong>₹${res.formatted.padtar} / pc</strong></td>
-                                <td>Net Material + Labour Charges</td>
-                            </tr>
-                            <tr>
-                                <td>Target Profit Margin (${res.profitPercent.toFixed(1)}%)</td>
-                                <td>₹${res.formatted.profitAmount} / pc</td>
-                                <td>Padtar × ${res.profitPercent.toFixed(1)}%</td>
-                            </tr>
-                            <tr class="grand-total-row">
-                                <td>FINAL PRODUCT SELLING PRICE</td>
-                                <td><strong>₹${res.formatted.finalSellingPrice} / pc</strong></td>
-                                <td>Padtar + Profit Amount</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="print-batch-box">
-                        <h3>BATCH PRODUCTION PROJECTION (${batch.formatted.quantity} PIECES)</h3>
-                        <div class="print-batch-grid">
-                            <div>Total Raw Material Required: <strong>${batch.formatted.totalRawMaterialKg} kg</strong></div>
-                            <div>Total Scrap / Chhol Generated: <strong>${batch.formatted.totalScrapKg} kg</strong></div>
-                            <div>Total Net Production Cost: <strong>₹${batch.formatted.totalProductionCost}</strong></div>
-                            <div>Total Projected Profit: <strong>₹${batch.formatted.totalProfit}</strong></div>
-                            <div class="print-batch-hero">Total Order Quotation: <strong>₹${batch.formatted.totalOrderValue}</strong></div>
-                        </div>
-                    </div>
-
-                    <div class="print-signatures">
-                        <div>
-                            <div class="sig-line">Prepared By (Operator)</div>
-                        </div>
-                        <div>
-                            <div class="sig-line">Checked & Approved (Works Manager)</div>
+                    <div class="quote-empty-state" style="text-align: center; padding: 48px 20px; background: var(--bg-surface); border: 2px dashed var(--border-subtle); border-radius: var(--radius-md);">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">📄</div>
+                        <h3 style="margin-bottom: 8px; color: var(--text-primary); font-size: 1.15rem;">No Active Calculation Entered</h3>
+                        <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 480px; margin: 0 auto 20px; line-height: 1.5;">
+                            The <strong>Technical Quotation Sheet</strong> generates a formal manufacturing costing report and client work order. Enter rod dimensions in <strong>Step 1</strong>, or select a saved part from your history above.
+                        </p>
+                        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button type="button" class="main-btn" id="btn-quote-empty-sample">⚡ Load Factory Sample A-1</button>
+                            <button type="button" class="outline-btn" id="btn-quote-empty-close">← Back to Calculator</button>
                         </div>
                     </div>
                 `;
+
+                const btnSample = printContainer.querySelector('#btn-quote-empty-sample');
+                if (btnSample) {
+                    btnSample.addEventListener('click', () => {
+                        this.loadFactorySampleA1();
+                        this.openPrintModal();
+                    });
+                }
+                const btnClose = printContainer.querySelector('#btn-quote-empty-close');
+                if (btnClose) {
+                    btnClose.addEventListener('click', () => {
+                        this.closePrintModal();
+                        this.goToStage(1);
+                    });
+                }
+                return;
             }
 
-            if (this.modalPrint) this.modalPrint.classList.add('active');
+            const qty = parseInt(this.quoteBatchQty ? this.quoteBatchQty.value : 1000, 10) || 1000;
+            const batch = this.calculator.calculateBatch(res, qty);
+            const clientName = (this.quoteClientName ? this.quoteClientName.value : '').trim();
+            const quoteRef = (this.quoteRefNo ? this.quoteRefNo.value : '').trim() ||
+                ('QUO-' + (res.itemCode || 'PART').replace(/[^A-Za-z0-9_-]/g, '').toUpperCase());
+
+            printContainer.innerHTML = `
+                <div class="print-header">
+                    <div>
+                        <h2>PRECISION TURNED COMPONENTS COSTING REPORT</h2>
+                        <p class="print-sub">Official Technical Calculation & Quotation Sheet</p>
+                        ${clientName ? `<div style="font-size: 0.84rem; margin-top: 4px; color: #333;">Prepared For: <strong>${this.escapeHTML(clientName)}</strong></div>` : ''}
+                    </div>
+                    <div class="print-meta" style="text-align: right; font-size: 0.82rem;">
+                        <div><strong>Date:</strong> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                        <div><strong>Quote Ref:</strong> ${this.escapeHTML(quoteRef)}</div>
+                        <div><strong>Job Code:</strong> <strong>${this.escapeHTML(res.itemCode)}</strong></div>
+                    </div>
+                </div>
+
+                <table class="print-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Specified Value</th>
+                            <th>Calculation Reference & Formula</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Geometry & Rod Section</td>
+                            <td><strong>${res.geometry.toUpperCase()}</strong></td>
+                            <td>${res.geometry === 'round' ? 'Cylindrical Rod (Round)' : res.geometry === 'square' ? 'Square Section' : 'Hexagon Across Flats'}</td>
+                        </tr>
+                        <tr>
+                            <td>Rod Dimension (R) × Length (L)</td>
+                            <td><strong>${res.rod.toFixed(2)} mm × ${res.length.toFixed(2)} mm</strong></td>
+                            <td>Length includes +${res.lengthAdjustment.toFixed(1)} mm parting allowance</td>
+                        </tr>
+                        <tr>
+                            <td>Geometry Coefficient</td>
+                            <td><code>${res.coefficientUsed}</code></td>
+                            <td>W = R² × (L + ${res.lengthAdjustment}) × Coeff</td>
+                        </tr>
+                        <tr>
+                            <td>Theoretical Expected Weight</td>
+                            <td><strong>${res.formatted.expectedWeight} grams</strong></td>
+                            <td>Raw rod required per piece</td>
+                        </tr>
+                        <tr>
+                            <td>Actual Finished Part Weight</td>
+                            <td><strong>${res.formatted.actualWeight} grams</strong></td>
+                            <td>Finished product net piece weight</td>
+                        </tr>
+                        <tr>
+                            <td>Wastage / Chhol Weight</td>
+                            <td><strong>${res.formatted.wastageWeight} grams</strong></td>
+                            <td>Material - Product (Utilization: ${res.formatted.materialUtilizationPct}%)</td>
+                        </tr>
+                        <tr>
+                            <td>Metal Market Benchmark (Honey)</td>
+                            <td><strong>₹${res.formatted.honey} / kg</strong></td>
+                            <td>Base market rate</td>
+                        </tr>
+                        <tr>
+                            <td>Raw Metal Purchase Rate (Rod)</td>
+                            <td><strong>₹${res.formatted.rodRate} / kg</strong></td>
+                            <td>Honey + ₹${res.markup.toFixed(2)} standard rod surcharge</td>
+                        </tr>
+                        <tr>
+                            <td>Scrap / Chhol Selling Rate</td>
+                            <td><strong>₹${res.formatted.scrapRate} / kg</strong></td>
+                            <td>Honey - ${res.scrapDeductionPercent.toFixed(1)}% recovery credit</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Gross Raw Metal Cost</td>
+                            <td>₹${res.formatted.rawMaterialCost} / pc</td>
+                            <td>(${res.formatted.expectedWeight}g × ₹${res.formatted.rodRate}) / 1000</td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td>Less: Scrap Recovery Credit</td>
+                            <td>-₹${res.formatted.scrapRecoveryValue} / pc</td>
+                            <td>(${res.formatted.wastageWeight}g × ₹${res.formatted.scrapRate}) / 1000</td>
+                        </tr>
+                        <tr class="key-row">
+                            <td>Net Effective Metal Cost (Material Rs.)</td>
+                            <td><strong>₹${res.formatted.netMaterialCost} / pc</strong></td>
+                            <td>Gross Metal Cost - Scrap Recovery</td>
+                        </tr>
+                        <tr>
+                            <td>Labour Charges (Majuri Rs.)</td>
+                            <td>₹${res.formatted.majuri} / pc</td>
+                            <td>Machining, tooling & labour charges</td>
+                        </tr>
+                        <tr class="key-row">
+                            <td>Production Cost (Padtar Rs.)</td>
+                            <td><strong>₹${res.formatted.padtar} / pc</strong></td>
+                            <td>Net Material + Labour Charges</td>
+                        </tr>
+                        <tr>
+                            <td>Target Profit Margin (${res.profitPercent.toFixed(1)}%)</td>
+                            <td>₹${res.formatted.profitAmount} / pc</td>
+                            <td>Padtar × ${res.profitPercent.toFixed(1)}%</td>
+                        </tr>
+                        <tr class="grand-total-row">
+                            <td>FINAL PRODUCT SELLING PRICE</td>
+                            <td><strong>₹${res.formatted.finalSellingPrice} / pc</strong></td>
+                            <td>Padtar + Profit Amount</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="print-batch-box">
+                    <h3>BATCH PRODUCTION PROJECTION (${batch.formatted.quantity} PIECES)</h3>
+                    <div class="print-batch-grid">
+                        <div>Total Raw Material Required: <strong>${batch.formatted.totalRawMaterialKg} kg</strong></div>
+                        <div>Total Scrap / Chhol Generated: <strong>${batch.formatted.totalScrapKg} kg</strong></div>
+                        <div>Total Net Production Cost: <strong>₹${batch.formatted.totalProductionCost}</strong></div>
+                        <div>Total Projected Profit: <strong>₹${batch.formatted.totalProfit}</strong></div>
+                        <div class="print-batch-hero">
+                            <span>Total Order Quotation:</span>
+                            <span style="font-size: 1.15rem; font-family: monospace;">₹${batch.formatted.totalOrderValue}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="print-signatures">
+                    <div>
+                        <div class="sig-line">Prepared By (Operator / Estimator)</div>
+                    </div>
+                    <div>
+                        <div class="sig-line">Checked & Approved (Works Manager / Client)</div>
+                    </div>
+                </div>
+            `;
         }
 
         closePrintModal() {

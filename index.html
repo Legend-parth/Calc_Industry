@@ -563,11 +563,11 @@
                             <tr>
                                 <th>Part & Date</th>
                                 <th>Shape</th>
-                                <th>Size</th>
-                                <th>Weight</th>
+                                <th>Size (R × L)</th>
+                                <th>Weight (Exp / Act)</th>
                                 <th>Padtar</th>
                                 <th>Final Price</th>
-                                <th>Action</th>
+                                <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="history-table-body">
@@ -581,17 +581,49 @@
 
     <!-- PRINT / QUOTE MODAL -->
     <div id="modal-print" class="modal-backdrop">
-        <div class="modal-box" style="max-width: 760px;">
+        <div class="modal-box" style="max-width: 800px;">
             <div class="modal-head">
-                <div class="modal-heading">Technical Quotation Sheet</div>
+                <div class="modal-heading">📄 Technical Quotation & Job Work Order</div>
                 <button type="button" id="btn-close-print" class="modal-close">&times;</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="padding: 16px 20px;">
+                <!-- Quote Configuration & Job Selection Bar (Hidden when printing) -->
+                <div class="quote-toolbar no-print" style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Quotation Settings & Source</span>
+                        <span id="quote-source-status" style="font-size: 0.75rem; color: var(--accent-olive); font-weight: 600;">Live Active Calculation</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div>
+                            <label for="quote-job-select" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Job to Quote:</label>
+                            <select id="quote-job-select" class="clean-input" style="font-size: 0.84rem; padding: 7px 10px; font-weight: 600; width: 100%;">
+                                <option value="current">⚡ Current Active Calculation</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="quote-batch-qty" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Order Quantity (pcs):</label>
+                            <input type="number" id="quote-batch-qty" class="clean-input" value="1000" min="1" step="100" style="font-size: 0.84rem; padding: 7px 10px; font-weight: 600; width: 100%;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px;">
+                        <div>
+                            <label for="quote-client-name" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Client / Buyer Name (Optional):</label>
+                            <input type="text" id="quote-client-name" class="clean-input" placeholder="e.g. Acme Precision Products Ltd." style="font-size: 0.84rem; padding: 7px 10px; width: 100%;">
+                        </div>
+                        <div>
+                            <label for="quote-ref-no" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Quotation / PO Ref #:</label>
+                            <input type="text" id="quote-ref-no" class="clean-input" placeholder="QUO-001" style="font-size: 0.84rem; padding: 7px 10px; width: 100%;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Printable Sheet Area -->
                 <div id="print-sheet-content" class="print-sheet-wrapper">
                     <!-- Populated dynamically -->
                 </div>
             </div>
             <div class="modal-foot">
+                <button type="button" id="btn-load-quote-to-calc" class="outline-btn" style="display: none;">📥 Load Job into Calculator</button>
                 <button type="button" id="btn-trigger-print" class="main-btn">🖨️ Print / Save PDF</button>
             </div>
         </div>
