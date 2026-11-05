@@ -6,7 +6,8 @@
 (function (window) {
     'use strict';
 
-    const SETTINGS_KEY = 'precimetal_settings_v1';
+    const SETTINGS_KEY = 'precimetal_settings_v2';
+    const LEGACY_KEY_V1 = 'precimetal_settings_v1';
     const HISTORY_KEY = 'precimetal_history_v1';
 
     class StorageManager {
@@ -20,17 +21,30 @@
          */
         loadSettings() {
             try {
+                // Clean up legacy v1 key if present
+                if (localStorage.getItem(LEGACY_KEY_V1)) {
+                    localStorage.removeItem(LEGACY_KEY_V1);
+                }
+
                 const stored = localStorage.getItem(SETTINGS_KEY);
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    return Object.assign({}, window.DEFAULT_SETTINGS, parsed, {
+                    if (parsed.rawMetalMarkup === 35 || parsed.rawMetalMarkup === 35.0 || !parsed.rawMetalMarkup) {
+                        parsed.rawMetalMarkup = 21.0;
+                    }
+                    const merged = Object.assign({}, window.DEFAULT_SETTINGS, parsed, {
+                        rawMetalMarkup: (parsed.rawMetalMarkup === 35 || parsed.rawMetalMarkup === 35.0 || !parsed.rawMetalMarkup) ? 21.0 : parsed.rawMetalMarkup,
                         coefficients: Object.assign({}, window.DEFAULT_SETTINGS.coefficients, parsed.coefficients || {})
                     });
+                    localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
+                    return merged;
                 }
             } catch (err) {
                 console.warn('Failed to load settings from storage:', err);
             }
-            return JSON.parse(JSON.stringify(window.DEFAULT_SETTINGS));
+            const defaults = JSON.parse(JSON.stringify(window.DEFAULT_SETTINGS));
+            defaults.rawMetalMarkup = 21.0;
+            return defaults;
         }
 
         /**
@@ -53,7 +67,10 @@
         resetSettings() {
             try {
                 localStorage.removeItem(SETTINGS_KEY);
+                localStorage.removeItem(LEGACY_KEY_V1);
                 this.settings = JSON.parse(JSON.stringify(window.DEFAULT_SETTINGS));
+                this.settings.rawMetalMarkup = 21.0;
+                localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
                 return this.settings;
             } catch (err) {
                 console.error('Failed to reset settings:', err);

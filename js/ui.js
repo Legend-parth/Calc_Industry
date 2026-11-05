@@ -9,7 +9,12 @@
     class PrecimetalUI {
         constructor() {
             this.storage = new window.StorageManager();
+            if (this.storage.settings.rawMetalMarkup === 35 || this.storage.settings.rawMetalMarkup === 35.0 || !this.storage.settings.rawMetalMarkup) {
+                this.storage.settings.rawMetalMarkup = 21.0;
+                this.storage.saveSettings({ rawMetalMarkup: 21.0 });
+            }
             this.calculator = new window.MetalCalculator(this.storage.settings);
+            this.calculator.updateSettings({ rawMetalMarkup: 21.0 });
 
             this.currentStage = 1; // 1: Geometry, 2: Market Rates, 3: Production & Costing
             this.currentMode = 'wizard'; // 'wizard' | 'workbench'
@@ -392,14 +397,14 @@
          * Reset form inputs
          */
         resetForm() {
-            this.inputItemCode.value = 'Item A-' + Math.floor(Math.random() * 900 + 100);
+            this.inputItemCode.value = 'Item A-1';
             this.selectGeometry('round');
             this.inputRod.value = '';
             this.inputLength.value = '';
+            this.inputHoney.value = '';
             this.inputActualWeight.value = '';
-            // keep honey and labour as default
-            this.inputLabour.value = this.storage.settings.defaultLabour.toFixed(2);
-            this.inputProfitPercent.value = this.storage.settings.defaultProfitPercent.toFixed(1);
+            this.inputLabour.value = (this.storage.settings.defaultLabour !== undefined ? this.storage.settings.defaultLabour : 0.35).toFixed(2);
+            this.inputProfitPercent.value = (this.storage.settings.defaultProfitPercent !== undefined ? this.storage.settings.defaultProfitPercent : 15.0).toFixed(1);
             this.goToStage(1);
             this.recalculate();
             if (this.inputRod) this.inputRod.focus();
