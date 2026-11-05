@@ -28,7 +28,7 @@
             hex: 0.0085
         },
         lengthAdjustment: 4.0, // Fixed allowance for parting/facing in mm
-        rawMetalMarkup: 35.0,  // ₹35 added to Honey market price
+        rawMetalMarkup: 21.0,  // ₹21 added to Honey market price (Rod = Honey + 21)
         scrapDeductionPercent: 5.0, // 5% deducted from Honey market price
         defaultLabour: 0.35,   // Majuri Rs. per piece
         defaultProfitPercent: 15.0, // Standard target margin
@@ -213,15 +213,16 @@
 
             // 8. Total Production Cost / Padtar Rs. (SUM(E22:E23) in Excel)
             // Padtar = Net Material Cost + Majuri (Labour)
-            const padtar = netMaterialCost + majuri;
+            const hasInputs = (expectedWeight > 0 || h > 0 || actualWeight > 0);
+            const padtar = hasInputs ? (netMaterialCost + majuri) : 0;
 
             // 9. Profit Amount in ₹ (E24 * B25 / 100 in Excel)
             // Profit = Padtar × Profit% / 100
-            const profitAmount = (padtar * targetProfitPct) / 100.0;
+            const profitAmount = hasInputs ? ((padtar * targetProfitPct) / 100.0) : 0;
 
             // 10. Final Product Selling Price (E24 + E25 in Excel)
             // Final Price = Padtar + Profit
-            const finalSellingPrice = padtar + profitAmount;
+            const finalSellingPrice = hasInputs ? (padtar + profitAmount) : 0;
 
             // Effective scrap recovery percentage of raw metal cost
             const scrapRecoveryPct = rawMaterialCost > 0 ? (scrapRecoveryValue / rawMaterialCost) * 100 : 0;

@@ -43,6 +43,18 @@
                 ctx.arc(centerX, centerY, innerRadius, Math.PI * 2, 0, true);
                 ctx.fillStyle = '#EBE7DF';
                 ctx.fill();
+
+                ctx.save();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = '#76726B';
+                ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+                ctx.fillText('FINAL PRICE', centerX, centerY - 9);
+
+                ctx.fillStyle = '#1A1A1A';
+                ctx.font = '700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
+                ctx.fillText('₹0.00', centerX, centerY + 8);
+                ctx.restore();
                 return;
             }
 

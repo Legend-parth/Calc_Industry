@@ -29,7 +29,7 @@ $$\text{Weight (grams)} = \text{Rod}^2 \times (\text{Length} + 4.0) \times C_{\t
 
 - **Honey**: Daily metal scrap / benchmark market index (₹/kg)
 - **Raw Metal Purchase Rate (Rod)**:
-  $$\text{Rod Rate} = \text{Honey} + ₹35.00$$
+  $$\text{Rod Rate} = \text{Honey} + ₹21.00$$
 - **Scrap / Wastage Selling Rate (Chhol)**:
   $$\text{Scrap Rate} = \text{Honey} \times (1 - 0.05) = \text{Honey} - 5\%$$
 

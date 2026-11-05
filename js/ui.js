@@ -57,6 +57,7 @@
             this.inputLabour = document.getElementById('input-labour');
             this.inputProfitPercent = document.getElementById('input-profit-percent');
             this.btnSaveDefaultLabour = document.getElementById('btn-save-default-labour');
+            this.btnSaveDefaultProfit = document.getElementById('btn-save-default-profit');
             this.btnStage3Back = document.getElementById('btn-stage3-back');
             this.weightAnomalyWarning = document.getElementById('weight-anomaly-warning');
 
@@ -227,6 +228,16 @@
                 });
             }
 
+            // Save Current Profit Margin as New Default
+            if (this.btnSaveDefaultProfit) {
+                this.btnSaveDefaultProfit.addEventListener('click', () => {
+                    const currentProfit = parseFloat(this.inputProfitPercent.value) || 0;
+                    this.storage.saveSettings({ defaultProfitPercent: currentProfit });
+                    this.calculator.updateSettings({ defaultProfitPercent: currentProfit });
+                    this.showNotification(`Saved ${currentProfit.toFixed(1)}% as standard default profit margin.`);
+                });
+            }
+
             // History Modal Actions
             const btnOpenHistory = document.getElementById('btn-open-history');
             const btnCloseHistory = document.getElementById('btn-close-history');
@@ -348,11 +359,11 @@
         }
 
         /**
-         * Load initial values (default to factory sample A-1)
+         * Load initial values (starts at clean zero state)
          */
         loadInitialData() {
             this.updateHistoryBadge();
-            this.loadFactorySampleA1();
+            this.resetForm();
         }
 
         /**
@@ -751,7 +762,7 @@
             const updated = {
                 defaultLabour: parseFloat(this.settingDefaultLabour.value) || 0.35,
                 defaultProfitPercent: parseFloat(this.settingDefaultProfit.value) || 15.0,
-                rawMetalMarkup: parseFloat(this.settingRawMarkup.value) || 35.0,
+                rawMetalMarkup: parseFloat(this.settingRawMarkup.value) || 21.0,
                 scrapDeductionPercent: parseFloat(this.settingScrapDeduction.value) || 5.0,
                 lengthAdjustment: parseFloat(this.settingLengthAdjustment.value) || 4.0,
                 densityPreset: this.selectDensityPreset ? this.selectDensityPreset.value : 'brass_standard',

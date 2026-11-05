@@ -102,7 +102,7 @@
                                 <span class="field-hint">Across flats / Dia</span>
                             </label>
                             <div class="input-box">
-                                <input type="number" id="input-rod" class="clean-input" inputmode="decimal" step="0.01" min="0" value="10.70" placeholder="10.70">
+                                <input type="number" id="input-rod" class="clean-input" inputmode="decimal" step="0.01" min="0" value="" placeholder="0.00">
                                 <span class="unit-tag">mm</span>
                             </div>
                             <div class="chips-bar">
@@ -120,7 +120,7 @@
                                 <span class="field-hint">+4mm allowance</span>
                             </label>
                             <div class="input-box">
-                                <input type="number" id="input-length" class="clean-input" inputmode="decimal" step="0.01" min="0" value="8.80" placeholder="8.80">
+                                <input type="number" id="input-length" class="clean-input" inputmode="decimal" step="0.01" min="0" value="" placeholder="0.00">
                                 <span class="unit-tag">mm</span>
                             </div>
                             <div class="chips-bar">
@@ -139,7 +139,7 @@
                             <div class="lbl">Raw Material Required</div>
                             <div class="formula" id="disp-formula-preview">Round: Rod² × (Length + 4) × 0.006676</div>
                         </div>
-                        <div class="val" id="disp-expected-weight">9.78 g</div>
+                        <div class="val" id="disp-expected-weight">0.00 g</div>
                     </div>
 
                     <!-- Navigation Action -->
@@ -164,7 +164,7 @@
                             <span class="field-hint">Today's base rate</span>
                         </label>
                         <div class="input-box">
-                            <input type="number" id="input-honey" class="clean-input" inputmode="decimal" step="0.5" min="0" value="870.00" placeholder="870.00" style="font-size: 1.3rem;">
+                            <input type="number" id="input-honey" class="clean-input" inputmode="decimal" step="0.5" min="0" value="" placeholder="0.00" style="font-size: 1.3rem;">
                             <span class="unit-tag">₹ / kg</span>
                         </div>
                         <div class="chips-bar">
@@ -181,10 +181,10 @@
                         <div class="rate-item purchase">
                             <div class="r-head">
                                 <span class="r-title">Rod Purchase Rate</span>
-                                <span id="disp-markup-badge" class="r-tag">+₹35</span>
+                                <span id="disp-markup-badge" class="r-tag">+₹21</span>
                             </div>
-                            <div class="r-val" id="disp-rod-rate">₹905.00</div>
-                            <div class="field-hint" style="margin-top:2px;">Rate paid to metal mill</div>
+                            <div class="r-val" id="disp-rod-rate">₹0.00</div>
+                            <div class="field-hint" style="margin-top:2px;">Rate paid to metal mill (Honey + ₹21)</div>
                         </div>
 
                         <div class="rate-item scrap">
@@ -192,7 +192,7 @@
                                 <span class="r-title">Scrap / Chhol Rate</span>
                                 <span id="disp-scrap-badge" class="r-tag">-5%</span>
                             </div>
-                            <div class="r-val" id="disp-scrap-rate">₹826.50</div>
+                            <div class="r-val" id="disp-scrap-rate">₹0.00</div>
                             <div class="field-hint" style="margin-top:2px;">Rate for selling scrap turnings</div>
                         </div>
                     </div>
@@ -228,7 +228,7 @@
                                 <span class="field-hint">Physical weight measured</span>
                             </label>
                             <div class="input-box">
-                                <input type="number" id="input-actual-weight" class="clean-input" inputmode="decimal" step="0.01" min="0" value="4.20" placeholder="4.20">
+                                <input type="number" id="input-actual-weight" class="clean-input" inputmode="decimal" step="0.01" min="0" value="" placeholder="0.00">
                                 <span class="unit-tag">g</span>
                             </div>
                             <div class="chips-bar">
@@ -259,7 +259,7 @@
                     <div class="field-group" style="margin-bottom: 16px;">
                         <label class="field-label" for="input-profit-percent">
                             <span>Target Profit Margin</span>
-                            <span class="field-hint">Applied over Padtar</span>
+                            <button type="button" id="btn-save-default-profit" class="btn-save-inline" title="Save as persistent default margin">Set Default</button>
                         </label>
                         <div class="input-box">
                             <input type="number" id="input-profit-percent" class="clean-input" inputmode="decimal" step="0.5" min="0" value="15.0" placeholder="15.0">
@@ -276,12 +276,12 @@
                     <!-- Utilization Ratio Bar -->
                     <div class="progress-card">
                         <div class="progress-header">
-                            <span>Part: <strong id="util-part-text">4.20g (42.9%)</strong></span>
-                            <span>Scrap / Chhol: <strong id="util-scrap-text">5.58g (57.1%)</strong></span>
+                            <span>Part: <strong id="util-part-text">0.00g (0%)</strong></span>
+                            <span>Scrap / Chhol: <strong id="util-scrap-text">0.00g (0%)</strong></span>
                         </div>
                         <div class="dual-bar">
-                            <div id="bar-product-weight" class="bar-part" style="width: 42.9%;"></div>
-                            <div id="bar-scrap-weight" class="bar-waste" style="width: 57.1%;"></div>
+                            <div id="bar-product-weight" class="bar-part" style="width: 0%;"></div>
+                            <div id="bar-scrap-weight" class="bar-waste" style="width: 0%;"></div>
                         </div>
                     </div>
 
@@ -320,19 +320,19 @@
                     <div class="batch-grid">
                         <div class="b-row">
                             <span class="b-lbl">Raw Material Required</span>
-                            <span class="b-val" id="disp-batch-raw-kg">9.78 kg</span>
+                            <span class="b-val" id="disp-batch-raw-kg">0.00 kg</span>
                         </div>
                         <div class="b-row">
                             <span class="b-lbl">Scrap Generated</span>
-                            <span class="b-val" id="disp-batch-scrap-kg">5.58 kg</span>
+                            <span class="b-val" id="disp-batch-scrap-kg">0.00 kg</span>
                         </div>
                         <div class="b-row">
                             <span class="b-lbl">Total Lot Profit</span>
-                            <span class="b-val" id="disp-batch-profit" style="color: var(--accent-olive);">₹690.00</span>
+                            <span class="b-val" id="disp-batch-profit" style="color: var(--accent-olive);">₹0.00</span>
                         </div>
                         <div class="b-row">
                             <span class="b-lbl">Total Order Value</span>
-                            <span class="b-val" id="disp-batch-order-value" style="font-size: 1.1rem;">₹5,280.00</span>
+                            <span class="b-val" id="disp-batch-order-value" style="font-size: 1.1rem;">₹0.00</span>
                         </div>
                     </div>
                 </div>
@@ -347,10 +347,36 @@
                         <div class="gauge-item">
                             <canvas id="canvas-cost-donut" width="160" height="120"></canvas>
                             <div class="g-lbl">Cost Split</div>
+                            <!-- CLEAR VISUAL LEGEND -->
+                            <div style="margin-top: 8px; font-size: 0.73rem; text-align: left; display: flex; flex-direction: column; gap: 4px; background: var(--bg-subtle); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 2px; background: #1A1A1A; display: inline-block;"></span>
+                                    <span><strong>Black:</strong> Net Metal Cost</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 2px; background: #8C8275; display: inline-block;"></span>
+                                    <span><strong>Gray:</strong> Labour (Majuri)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 2px; background: #B65738; display: inline-block;"></span>
+                                    <span><strong>Orange:</strong> Target Profit</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="gauge-item">
                             <canvas id="canvas-weight-gauge" width="160" height="120"></canvas>
                             <div class="g-lbl">Material Utilization</div>
+                            <!-- CLEAR VISUAL LEGEND -->
+                            <div style="margin-top: 8px; font-size: 0.73rem; text-align: left; display: flex; flex-direction: column; gap: 4px; background: var(--bg-subtle); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 2px; background: #1A1A1A; display: inline-block;"></span>
+                                    <span><strong>Black:</strong> Finished Part</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 10px; height: 10px; border-radius: 2px; background: #EBE7DF; border: 1px solid #D5CCC0; display: inline-block;"></span>
+                                    <span><strong>Cream:</strong> Scrap (Chhol)</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -364,7 +390,7 @@
                 <div class="hero-card">
                     <div class="hero-subtitle">FINAL PRODUCT SELLING PRICE</div>
                     <div class="hero-price-row">
-                        <div class="hero-price-text" id="hero-final-price">₹5.28</div>
+                        <div class="hero-price-text" id="hero-final-price">₹0.00</div>
                         <span class="hero-unit-text">/ pc</span>
                     </div>
 
@@ -372,15 +398,15 @@
                         <tbody>
                             <tr>
                                 <td>Gross Raw Metal Cost</td>
-                                <td id="val-raw-material-cost">₹8.85</td>
+                                <td id="val-raw-material-cost">₹0.00</td>
                             </tr>
                             <tr class="credit">
                                 <td>Less: Scrap Recovery (Chhol)</td>
-                                <td id="val-scrap-recovery">-₹4.61</td>
+                                <td id="val-scrap-recovery">-₹0.00</td>
                             </tr>
                             <tr class="highlight">
                                 <td>Net Material Cost (Material Rs.)</td>
-                                <td id="val-net-material">₹4.24</td>
+                                <td id="val-net-material">₹0.00</td>
                             </tr>
                             <tr>
                                 <td>Labour Charges (Majuri)</td>
@@ -388,26 +414,26 @@
                             </tr>
                             <tr class="highlight">
                                 <td>Production Cost (Padtar Rs.)</td>
-                                <td id="val-padtar">₹4.59</td>
+                                <td id="val-padtar">₹0.00</td>
                             </tr>
                             <tr>
                                 <td>Target Profit Amount (+15%)</td>
-                                <td id="val-profit-amount" style="color: var(--accent-olive);">+₹0.69</td>
+                                <td id="val-profit-amount" style="color: var(--accent-olive);">+₹0.00</td>
                             </tr>
                             <tr style="border-top: 2px solid var(--ink-black); font-size: 1rem;">
                                 <td><strong>Final Selling Price</strong></td>
-                                <td id="val-final-price"><strong>₹5.28</strong></td>
+                                <td id="val-final-price"><strong>₹0.00</strong></td>
                             </tr>
                         </tbody>
                     </table>
 
                     <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.76rem; color: var(--text-muted);">
-                        <div>Scrap Value: <strong id="hero-scrap-recovery" style="color: var(--text-primary);">₹4.61</strong></div>
-                        <div>Wastage Wg: <strong id="hero-wastage-weight" style="color: var(--text-primary);">5.58 g</strong></div>
-                        <div>Utilization: <strong id="hero-utilization" style="color: var(--text-primary);">42.9%</strong></div>
-                        <div>Padtar: <strong id="hero-padtar" style="color: var(--text-primary);">₹4.59</strong></div>
-                        <span id="hero-material-cost" style="display:none;">₹4.24</span>
-                        <span id="hero-profit" style="display:none;">₹0.69</span>
+                        <div>Scrap Value: <strong id="hero-scrap-recovery" style="color: var(--text-primary);">₹0.00</strong></div>
+                        <div>Wastage Wg: <strong id="hero-wastage-weight" style="color: var(--text-primary);">0.00 g</strong></div>
+                        <div>Utilization: <strong id="hero-utilization" style="color: var(--text-primary);">0.0%</strong></div>
+                        <div>Padtar: <strong id="hero-padtar" style="color: var(--text-primary);">₹0.00</strong></div>
+                        <span id="hero-material-cost" style="display:none;">₹0.00</span>
+                        <span id="hero-profit" style="display:none;">₹0.00</span>
                     </div>
                 </div>
 
@@ -421,7 +447,7 @@
     <div class="mobile-sticky-bar">
         <div class="mobile-sticky-info">
             <div class="m-lbl">FINAL PRICE</div>
-            <div class="m-price" id="mobile-hero-price">₹5.28 / pc</div>
+            <div class="m-price" id="mobile-hero-price">₹0.00 / pc</div>
         </div>
         <button type="button" class="main-btn" onclick="window.precimetalApp.goToStage(3);" style="padding: 10px 16px; font-size: 0.85rem;">
             View Costing
@@ -457,7 +483,7 @@
                     <div class="field-group">
                         <label class="field-label" for="setting-raw-markup">Raw Rod Markup</label>
                         <div class="input-box">
-                            <input type="number" id="setting-raw-markup" class="clean-input" step="1" value="35.0">
+                            <input type="number" id="setting-raw-markup" class="clean-input" step="1" value="21.0">
                             <span class="unit-tag">+₹/kg</span>
                         </div>
                     </div>
