@@ -2,484 +2,413 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRECIMETAL™ | Industrial Metal Weight & Costing OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRECIMETAL™ | Industrial Metal Cost Calculator</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-    <!-- Main Navigation & Application Header -->
+    <!-- Minimalist Header -->
     <header class="app-header">
         <div class="header-container">
             <div class="brand-section">
-                <div class="brand-logo-icon">
-                    <img src="assets/favicon.svg" alt="PRECIMETAL Logo" width="28" height="28">
+                <div class="brand-logo">
+                    <img src="assets/favicon.svg" alt="PRECIMETAL Logo">
                 </div>
-                <div class="brand-text">
-                    <h1>PRECIMETAL™ INDUSTRIAL OS</h1>
-                    <div class="brand-tag">Precision Metal Weight & Costing Platform</div>
+                <div>
+                    <div class="brand-title">PRECIMETAL</div>
+                    <div class="brand-sub">Metal Weight & Costing <span id="live-clock" style="display:none;"></span></div>
                 </div>
             </div>
 
             <div class="header-actions">
-                <div class="live-telemetry">
-                    <span class="live-dot"></span>
-                    <span id="live-clock">--:--:--</span>
-                </div>
-                <button id="btn-load-sample" class="btn btn-sm btn-outline" title="Load Factory Reference Sample A-1">
+                <button type="button" id="btn-load-sample" class="icon-btn" title="Load Factory Reference Sample A-1">
                     ⚡ Sample A-1
                 </button>
-                <button id="btn-open-history" class="btn btn-sm btn-outline">
-                    📋 History <span id="history-count-badge" class="badge-geom" style="display:none; margin-left:4px;">0</span>
+                <button type="button" id="btn-open-history" class="icon-btn">
+                    📋 History <span id="history-count-badge" style="display:none; font-weight:700;">0</span>
                 </button>
-                <button id="btn-open-print" class="btn btn-sm btn-outline">
-                    🖨️ Quotation
+                <button type="button" id="btn-open-print" class="icon-btn">
+                    🖨️ Quote
                 </button>
-                <button id="btn-open-settings" class="btn btn-sm btn-outline" title="Settings & Rate Configuration">
-                    ⚙️ Settings
+                <button type="button" id="btn-open-settings" class="icon-btn" title="Settings">
+                    ⚙️
                 </button>
-                <button id="btn-mode-toggle" class="btn btn-sm btn-amber">
-                    Switch to Industrial Workbench
+                <button type="button" id="btn-mode-toggle" class="icon-btn primary" style="display:none;">
+                    Workbench
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Application Workspace -->
-    <main class="app-main">
+    <!-- Main Workspace -->
+    <main class="main-wrapper">
 
-        <!-- Guided Wizard Stepper Pills -->
-        <nav id="wizard-stepper" class="stepper-nav" aria-label="Process Steps">
-            <div class="step-pill active" data-stage="1">
-                <span class="step-number">1</span>
-                <span>Geometry & Dimensions</span>
-            </div>
-            <div class="stepper-line"></div>
-            <div class="step-pill" data-stage="2">
-                <span class="step-number">2</span>
-                <span>Market Rates (Honey)</span>
-            </div>
-            <div class="stepper-line"></div>
-            <div class="step-pill" data-stage="3">
-                <span class="step-number">3</span>
-                <span>Production & Costing</span>
-            </div>
+        <!-- 3-Step Navigation Tabs -->
+        <nav id="wizard-stepper" class="stepper-tabs" aria-label="Calculator Steps">
+            <button type="button" class="step-tab step-pill active" data-stage="1">
+                <span class="tab-num step-number">1</span>
+                <span>Shape & Size</span>
+            </button>
+            <button type="button" class="step-tab step-pill" data-stage="2">
+                <span class="tab-num step-number">2</span>
+                <span>Metal Rate</span>
+            </button>
+            <button type="button" class="step-tab step-pill" data-stage="3">
+                <span class="tab-num step-number">3</span>
+                <span>Cost & Profit</span>
+            </button>
         </nav>
 
-        <div class="workspace-grid">
+        <div class="layout-split">
 
-            <!-- LEFT WORKSPACE: STAGE PANELS -->
-            <div class="workspace-stages">
+            <!-- LEFT COLUMN: INTERACTIVE STAGES -->
+            <div class="stages-column">
 
-                <!-- STAGE 1: GEOMETRY & ROD SPECIFICATION -->
-                <section id="stage-panel-1" class="stage-panel active" data-stage="1">
-                    <div class="stage-header">
-                        <div class="stage-title-wrap">
-                            <span class="stage-badge">STAGE 01</span>
-                            <div>
-                                <h2 class="stage-title">Metal Geometry & Raw Rod Dimensions</h2>
-                                <p class="stage-subtitle">Select profile cross-section and enter precision measurements</p>
-                            </div>
-                        </div>
-                        <div class="form-group" style="min-width: 160px;">
-                            <input type="text" id="input-item-code" class="form-input" value="Item A-1" placeholder="Job / Part Ref" style="padding: 6px 10px; font-size: 0.85rem;">
-                        </div>
+                <!-- STAGE 1: GEOMETRY & ROD DIMENSIONS -->
+                <section id="stage-panel-1" class="stage-panel clean-card" data-stage="1">
+                    <div class="card-head">
+                        <h2 class="card-title">1. Metal Profile & Dimensions</h2>
+                        <input type="text" id="input-item-code" class="clean-input" value="Item A-1" placeholder="Part Ref" style="width: 120px; padding: 6px 10px; font-size: 0.82rem;">
                     </div>
 
-                    <!-- Geometry Selection Cards -->
-                    <div class="geom-cards-grid">
-                        <div class="geom-card active" data-geometry="round">
-                            <div class="geom-icon-wrap">
-                                <img src="assets/icons/round.svg" alt="Round Rod">
-                            </div>
-                            <div class="geom-name">Round Rod</div>
-                            <div class="geom-formula-code">Coeff: 0.006676</div>
+                    <!-- 3 Clean Geometry Buttons -->
+                    <div class="geom-picker">
+                        <div class="geom-btn geom-card active" data-geometry="round">
+                            <img src="assets/icons/round.svg" alt="Round">
+                            <div class="lbl">Round</div>
+                            <div class="sub">Dia (mm)</div>
                         </div>
 
-                        <div class="geom-card" data-geometry="square">
-                            <div class="geom-icon-wrap">
-                                <img src="assets/icons/square.svg" alt="Square Bar">
-                            </div>
-                            <div class="geom-name">Square Bar</div>
-                            <div class="geom-formula-code">Coeff: 0.007361</div>
+                        <div class="geom-btn geom-card" data-geometry="square">
+                            <img src="assets/icons/square.svg" alt="Square">
+                            <div class="lbl">Square</div>
+                            <div class="sub">Square (mm)</div>
                         </div>
 
-                        <div class="geom-card" data-geometry="hex">
-                            <div class="geom-icon-wrap">
-                                <img src="assets/icons/hex.svg" alt="Hexagon Rod">
-                            </div>
-                            <div class="geom-name">Hexagon (HEX)</div>
-                            <div class="geom-formula-code">Coeff: 0.008500</div>
+                        <div class="geom-btn geom-card" data-geometry="hex">
+                            <img src="assets/icons/hex.svg" alt="Hexagon">
+                            <div class="lbl">Hexagon</div>
+                            <div class="sub">HEX (mm)</div>
                         </div>
                     </div>
 
                     <!-- Rod Dimension Inputs -->
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" for="input-rod">
-                                <span>Rod Dimension (R)</span>
-                                <span class="form-hint">Across flats / Dia</span>
+                    <div class="input-row">
+                        <div class="field-group">
+                            <label class="field-label" for="input-rod">
+                                <span>Rod Size (R)</span>
+                                <span class="field-hint">Across flats / Dia</span>
                             </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-rod" class="form-input" step="0.01" min="0" placeholder="e.g. 10.70" value="10.70">
-                                <span class="input-addon">mm</span>
+                            <div class="input-box">
+                                <input type="number" id="input-rod" class="clean-input" inputmode="decimal" step="0.01" min="0" value="10.70" placeholder="10.70">
+                                <span class="unit-tag">mm</span>
                             </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-rod').value='8.00'; window.precimetalApp.recalculate();">8.0</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-rod').value='10.70'; window.precimetalApp.recalculate();">10.7</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-rod').value='12.00'; window.precimetalApp.recalculate();">12.0</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-rod').value='16.00'; window.precimetalApp.recalculate();">16.0</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-rod').value='19.05'; window.precimetalApp.recalculate();">19.05</button>
+                            <div class="chips-bar">
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod').value='8.00'; window.precimetalApp.recalculate();">8.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod').value='10.70'; window.precimetalApp.recalculate();">10.7</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod').value='12.00'; window.precimetalApp.recalculate();">12.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod').value='16.00'; window.precimetalApp.recalculate();">16.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod').value='19.05'; window.precimetalApp.recalculate();">19.0</button>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="input-length">
+                        <div class="field-group">
+                            <label class="field-label" for="input-length">
                                 <span>Finished Length (L)</span>
-                                <span class="form-hint">+4.0 mm parting allowance</span>
+                                <span class="field-hint">+4mm allowance</span>
                             </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-length" class="form-input" step="0.01" min="0" placeholder="e.g. 8.80" value="8.80">
-                                <span class="input-addon">mm</span>
+                            <div class="input-box">
+                                <input type="number" id="input-length" class="clean-input" inputmode="decimal" step="0.01" min="0" value="8.80" placeholder="8.80">
+                                <span class="unit-tag">mm</span>
                             </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-length').value='5.00'; window.precimetalApp.recalculate();">5.0</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-length').value='8.80'; window.precimetalApp.recalculate();">8.8</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-length').value='12.50'; window.precimetalApp.recalculate();">12.5</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-length').value='20.00'; window.precimetalApp.recalculate();">20.0</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-length').value='32.00'; window.precimetalApp.recalculate();">32.0</button>
+                            <div class="chips-bar">
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-length').value='5.00'; window.precimetalApp.recalculate();">5.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-length').value='8.80'; window.precimetalApp.recalculate();">8.8</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-length').value='12.50'; window.precimetalApp.recalculate();">12.5</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-length').value='20.00'; window.precimetalApp.recalculate();">20.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-length').value='32.00'; window.precimetalApp.recalculate();">32.0</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Expected Theoretical Weight Box -->
-                    <div class="inline-stat-box">
-                        <div class="inline-stat-info">
-                            <div class="stat-label">Expected Material Weight Per Piece</div>
-                            <div class="stat-formula" id="disp-formula-preview">Round: Rod² × (Length + 4) × 0.006676</div>
+                    <!-- Expected Weight Highlight Box -->
+                    <div class="highlight-box">
+                        <div>
+                            <div class="lbl">Raw Material Required</div>
+                            <div class="formula" id="disp-formula-preview">Round: Rod² × (Length + 4) × 0.006676</div>
                         </div>
-                        <div class="inline-stat-value" id="disp-expected-weight">9.78 g</div>
+                        <div class="val" id="disp-expected-weight">9.78 g</div>
                     </div>
 
                     <!-- Navigation Action -->
-                    <div class="stage-nav-row">
+                    <div class="step-nav-bar">
                         <div></div>
-                        <button id="btn-stage1-next" class="btn btn-primary stage-nav-btn">
-                            Proceed to Metal Pricing →
+                        <button type="button" id="btn-stage1-next" class="main-btn stage-nav-btn">
+                            Next: Metal Rate →
                         </button>
                     </div>
                 </section>
 
-                <!-- STAGE 2: METAL MARKET PRICING & SCRAP DISCOUNTS -->
-                <section id="stage-panel-2" class="stage-panel" data-stage="2" style="display: none;">
-                    <div class="stage-header">
-                        <div class="stage-title-wrap">
-                            <span class="stage-badge">STAGE 02</span>
-                            <div>
-                                <h2 class="stage-title">Metal Market Rates & Scrap Surcharges</h2>
-                                <p class="stage-subtitle">Base market rate (Honey) and factory purchase/scrap recovery formula</p>
-                            </div>
+                <!-- STAGE 2: METAL MARKET PRICING -->
+                <section id="stage-panel-2" class="stage-panel clean-card" data-stage="2" style="display: none;">
+                    <div class="card-head">
+                        <h2 class="card-title">2. Metal Market Rate (Honey)</h2>
+                        <span class="card-tag">₹ / kg</span>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label class="field-label" for="input-honey">
+                            <span>Current Market Price (Honey)</span>
+                            <span class="field-hint">Today's base rate</span>
+                        </label>
+                        <div class="input-box">
+                            <input type="number" id="input-honey" class="clean-input" inputmode="decimal" step="0.5" min="0" value="870.00" placeholder="870.00" style="font-size: 1.3rem;">
+                            <span class="unit-tag">₹ / kg</span>
+                        </div>
+                        <div class="chips-bar">
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='820.00'; window.precimetalApp.recalculate();">₹820</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='850.00'; window.precimetalApp.recalculate();">₹850</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='870.00'; window.precimetalApp.recalculate();">₹870 (Demo)</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='895.00'; window.precimetalApp.recalculate();">₹895</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='920.00'; window.precimetalApp.recalculate();">₹920</button>
                         </div>
                     </div>
 
-                    <div class="form-grid" style="margin-bottom: 24px;">
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label class="form-label" for="input-honey">
-                                <span>Current Metal Market Price (Honey)</span>
-                                <span class="form-hint">Daily index rate in INR per kilogram</span>
-                            </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-honey" class="form-input" step="0.5" min="0" placeholder="e.g. 870.00" value="870.00" style="font-size: 1.3rem;">
-                                <span class="input-addon">₹ / kg</span>
+                    <!-- Rates Grid -->
+                    <div class="rates-grid">
+                        <div class="rate-item purchase">
+                            <div class="r-head">
+                                <span class="r-title">Rod Purchase Rate</span>
+                                <span id="disp-markup-badge" class="r-tag">+₹35</span>
                             </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-honey').value='820.00'; window.precimetalApp.recalculate();">₹820</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-honey').value='850.00'; window.precimetalApp.recalculate();">₹850</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-honey').value='870.00'; window.precimetalApp.recalculate();">₹870 (Demo)</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-honey').value='895.00'; window.precimetalApp.recalculate();">₹895</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-honey').value='920.00'; window.precimetalApp.recalculate();">₹920</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Calculated Rates Cards -->
-                    <div class="rates-matrix">
-                        <div class="rate-card purchase">
-                            <div class="rate-card-head">
-                                <span class="rate-card-title">Raw Metal Purchase Rate (Rod)</span>
-                                <span id="disp-markup-badge" class="rate-badge plus">+₹35.00</span>
-                            </div>
-                            <div class="rate-card-val" id="disp-rod-rate">₹905.00</div>
-                            <div class="form-hint" style="margin-top: 4px;">Rate paid to metal extrusion mill (Honey + ₹35)</div>
+                            <div class="r-val" id="disp-rod-rate">₹905.00</div>
+                            <div class="field-hint" style="margin-top:2px;">Rate paid to metal mill</div>
                         </div>
 
-                        <div class="rate-card scrap">
-                            <div class="rate-card-head">
-                                <span class="rate-card-title">Scrap / Wastage Selling Rate (Chhol)</span>
-                                <span id="disp-scrap-badge" class="rate-badge minus">-5.0%</span>
+                        <div class="rate-item scrap">
+                            <div class="r-head">
+                                <span class="r-title">Scrap / Chhol Rate</span>
+                                <span id="disp-scrap-badge" class="r-tag">-5%</span>
                             </div>
-                            <div class="rate-card-val" id="disp-scrap-rate">₹826.50</div>
-                            <div class="form-hint" style="margin-top: 4px;">Price recovered by selling turnings/borings (Honey - 5%)</div>
+                            <div class="r-val" id="disp-scrap-rate">₹826.50</div>
+                            <div class="field-hint" style="margin-top:2px;">Rate for selling scrap turnings</div>
                         </div>
                     </div>
 
                     <!-- Navigation Action -->
-                    <div class="stage-nav-row">
-                        <button id="btn-stage2-back" class="btn btn-outline stage-nav-btn">
-                            ← Back to Geometry
+                    <div class="step-nav-bar">
+                        <button type="button" id="btn-stage2-back" class="outline-btn stage-nav-btn">
+                            ← Back
                         </button>
-                        <button id="btn-stage2-next" class="btn btn-primary stage-nav-btn">
-                            Proceed to Production & Costing →
+                        <button type="button" id="btn-stage2-next" class="main-btn stage-nav-btn">
+                            Next: Cost & Profit →
                         </button>
                     </div>
                 </section>
 
-                <!-- STAGE 3: PRODUCTION ACTUAL WEIGHT, COSTING & PROFIT -->
-                <section id="stage-panel-3" class="stage-panel" data-stage="3" style="display: none;">
-                    <div class="stage-header">
-                        <div class="stage-title-wrap">
-                            <span class="stage-badge">STAGE 03</span>
-                            <div>
-                                <h2 class="stage-title">Actual Weight, Labour (Majuri) & Profit</h2>
-                                <p class="stage-subtitle">Weighed product mass, scrap credit, production cost (Padtar) and final quote</p>
+                <!-- STAGE 3: PRODUCTION ACTUAL WEIGHT, LABOUR & PROFIT -->
+                <section id="stage-panel-3" class="stage-panel clean-card" data-stage="3" style="display: none;">
+                    <div class="card-head">
+                        <h2 class="card-title">3. Actual Weight, Labour & Profit</h2>
+                        <span class="card-tag">Final Step</span>
+                    </div>
+
+                    <!-- Anomaly Warning -->
+                    <div id="weight-anomaly-warning" class="clean-alert">
+                        <span>⚠️</span>
+                        <span class="anomaly-text">Warning: Actual piece weight exceeds raw material weight!</span>
+                    </div>
+
+                    <div class="input-row">
+                        <div class="field-group">
+                            <label class="field-label" for="input-actual-weight">
+                                <span>Actual Part Weight</span>
+                                <span class="field-hint">Physical weight measured</span>
+                            </label>
+                            <div class="input-box">
+                                <input type="number" id="input-actual-weight" class="clean-input" inputmode="decimal" step="0.01" min="0" value="4.20" placeholder="4.20">
+                                <span class="unit-tag">g</span>
+                            </div>
+                            <div class="chips-bar">
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-actual-weight').value='3.50'; window.precimetalApp.recalculate();">3.5g</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-actual-weight').value='4.20'; window.precimetalApp.recalculate();">4.2g</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-actual-weight').value='5.00'; window.precimetalApp.recalculate();">5.0g</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-actual-weight').value='6.50'; window.precimetalApp.recalculate();">6.5g</button>
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label" for="input-labour">
+                                <span>Labour (Majuri Rs.)</span>
+                                <button type="button" id="btn-save-default-labour" class="btn-save-inline" title="Save as persistent default">Set Default</button>
+                            </label>
+                            <div class="input-box">
+                                <input type="number" id="input-labour" class="clean-input" inputmode="decimal" step="0.01" min="0" value="0.35" placeholder="0.35">
+                                <span class="unit-tag">₹ / pc</span>
+                            </div>
+                            <div class="chips-bar">
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-labour').value='0.25'; window.precimetalApp.recalculate();">₹0.25</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-labour').value='0.35'; window.precimetalApp.recalculate();">₹0.35</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-labour').value='0.50'; window.precimetalApp.recalculate();">₹0.50</button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Anomaly Warning Box -->
-                    <div id="weight-anomaly-warning" class="anomaly-alert">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <span class="anomaly-text">Warning: Actual finished weight exceeds theoretical material weight!</span>
-                    </div>
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" for="input-actual-weight">
-                                <span>Actual Finished Part Weight</span>
-                                <span class="form-hint">Physical weight measured</span>
-                            </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-actual-weight" class="form-input" step="0.01" min="0" placeholder="e.g. 4.20" value="4.20" style="font-size: 1.2rem;">
-                                <span class="input-addon">grams</span>
-                            </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-actual-weight').value='3.50'; window.precimetalApp.recalculate();">3.50g</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-actual-weight').value='4.20'; window.precimetalApp.recalculate();">4.20g (Demo)</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-actual-weight').value='5.00'; window.precimetalApp.recalculate();">5.00g</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-actual-weight').value='6.50'; window.precimetalApp.recalculate();">6.50g</button>
-                            </div>
+                    <div class="field-group" style="margin-bottom: 16px;">
+                        <label class="field-label" for="input-profit-percent">
+                            <span>Target Profit Margin</span>
+                            <span class="field-hint">Applied over Padtar</span>
+                        </label>
+                        <div class="input-box">
+                            <input type="number" id="input-profit-percent" class="clean-input" inputmode="decimal" step="0.5" min="0" value="15.0" placeholder="15.0">
+                            <span class="unit-tag">%</span>
                         </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="input-labour">
-                                <span>Labour Charges (Majuri Rs.)</span>
-                                <button type="button" id="btn-save-default-labour" class="chip-btn" title="Save this value as standard default for future jobs">💾 Set as Default</button>
-                            </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-labour" class="form-input" step="0.01" min="0" placeholder="e.g. 0.35" value="0.35">
-                                <span class="input-addon">₹ / pc</span>
-                            </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-labour').value='0.25'; window.precimetalApp.recalculate();">₹0.25</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-labour').value='0.35'; window.precimetalApp.recalculate();">₹0.35</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-labour').value='0.50'; window.precimetalApp.recalculate();">₹0.50</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-labour').value='0.75'; window.precimetalApp.recalculate();">₹0.75</button>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label" for="input-profit-percent">
-                                <span>Target Profit Margin</span>
-                                <span class="form-hint">Applied over Padtar</span>
-                            </label>
-                            <div class="input-with-addon">
-                                <input type="number" id="input-profit-percent" class="form-input" step="0.5" min="0" placeholder="e.g. 15.0" value="15.0">
-                                <span class="input-addon">%</span>
-                            </div>
-                            <div class="chips-row">
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-profit-percent').value='10.0'; window.precimetalApp.recalculate();">10%</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-profit-percent').value='15.0'; window.precimetalApp.recalculate();">15%</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-profit-percent').value='20.0'; window.precimetalApp.recalculate();">20%</button>
-                                <button type="button" class="chip-btn" onclick="document.getElementById('input-profit-percent').value='25.0'; window.precimetalApp.recalculate();">25%</button>
-                            </div>
+                        <div class="chips-bar">
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-profit-percent').value='10.0'; window.precimetalApp.recalculate();">10%</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-profit-percent').value='15.0'; window.precimetalApp.recalculate();">15%</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-profit-percent').value='20.0'; window.precimetalApp.recalculate();">20%</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-profit-percent').value='25.0'; window.precimetalApp.recalculate();">25%</button>
                         </div>
                     </div>
 
-                    <!-- Material Utilization & Wastage Bar -->
-                    <div class="utilization-bar-wrap">
-                        <div class="utilization-labels">
-                            <span>Part Weight: <strong id="util-part-text">4.20g (42.9%)</strong></span>
+                    <!-- Utilization Ratio Bar -->
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <span>Part: <strong id="util-part-text">4.20g (42.9%)</strong></span>
                             <span>Scrap / Chhol: <strong id="util-scrap-text">5.58g (57.1%)</strong></span>
                         </div>
-                        <div class="segmented-progress">
-                            <div id="bar-product-weight" class="segment-product" style="width: 42.9%;"></div>
-                            <div id="bar-scrap-weight" class="segment-scrap" style="width: 57.1%;"></div>
+                        <div class="dual-bar">
+                            <div id="bar-product-weight" class="bar-part" style="width: 42.9%;"></div>
+                            <div id="bar-scrap-weight" class="bar-waste" style="width: 57.1%;"></div>
                         </div>
                     </div>
 
-                    <!-- Navigation Actions -->
-                    <div class="stage-nav-row">
-                        <button id="btn-stage3-back" class="btn btn-outline stage-nav-btn">
-                            ← Back to Pricing
+                    <!-- Navigation Action -->
+                    <div class="step-nav-bar">
+                        <button type="button" id="btn-stage3-back" class="outline-btn stage-nav-btn">
+                            ← Back
                         </button>
-                        <div style="display:flex; gap:10px;">
-                            <button id="btn-reset-calc" class="btn btn-outline">
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" id="btn-reset-calc" class="outline-btn">
                                 🔄 Reset
                             </button>
-                            <button id="btn-save-calc" class="btn btn-emerald">
-                                💾 Save Calculation
+                            <button type="button" id="btn-save-calc" class="main-btn">
+                                💾 Save
                             </button>
                         </div>
                     </div>
                 </section>
+
+                <!-- COLLAPSIBLE BATCH CALCULATOR -->
+                <div class="collapse-trigger" onclick="toggleCollapse('batch-collapse')">
+                    <span>📦 Batch Quantity Projection (<span id="disp-batch-qty">1,000</span> pcs)</span>
+                    <span id="batch-collapse-arrow">▾</span>
+                </div>
+                <div id="batch-collapse" class="collapse-body" style="display: none;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="number" id="input-batch-qty" class="clean-input" inputmode="numeric" min="1" value="1000" placeholder="Quantity">
+                    </div>
+                    <div class="chips-bar" style="margin-bottom: 12px;">
+                        <button type="button" class="touch-chip batch-chip" data-qty="100">100</button>
+                        <button type="button" class="touch-chip batch-chip" data-qty="500">500</button>
+                        <button type="button" class="touch-chip batch-chip" data-qty="1000">1,000</button>
+                        <button type="button" class="touch-chip batch-chip" data-qty="5000">5,000</button>
+                        <button type="button" class="touch-chip batch-chip" data-qty="10000">10,000</button>
+                    </div>
+                    <div class="batch-grid">
+                        <div class="b-row">
+                            <span class="b-lbl">Raw Material Required</span>
+                            <span class="b-val" id="disp-batch-raw-kg">9.78 kg</span>
+                        </div>
+                        <div class="b-row">
+                            <span class="b-lbl">Scrap Generated</span>
+                            <span class="b-val" id="disp-batch-scrap-kg">5.58 kg</span>
+                        </div>
+                        <div class="b-row">
+                            <span class="b-lbl">Total Lot Profit</span>
+                            <span class="b-val" id="disp-batch-profit" style="color: var(--accent-olive);">₹690.00</span>
+                        </div>
+                        <div class="b-row">
+                            <span class="b-lbl">Total Order Value</span>
+                            <span class="b-val" id="disp-batch-order-value" style="font-size: 1.1rem;">₹5,280.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLLAPSIBLE VISUAL GAUGES -->
+                <div class="collapse-trigger" onclick="toggleCollapse('gauges-collapse')">
+                    <span>📊 Visual Split & Gauges</span>
+                    <span id="gauges-collapse-arrow">▾</span>
+                </div>
+                <div id="gauges-collapse" class="collapse-body" style="display: none;">
+                    <div class="gauges-container">
+                        <div class="gauge-item">
+                            <canvas id="canvas-cost-donut" width="160" height="120"></canvas>
+                            <div class="g-lbl">Cost Split</div>
+                        </div>
+                        <div class="gauge-item">
+                            <canvas id="canvas-weight-gauge" width="160" height="120"></canvas>
+                            <div class="g-lbl">Material Utilization</div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
-            <!-- RIGHT WORKSPACE: LIVE EXECUTIVE HERO & CHARTS -->
-            <aside class="telemetry-column">
+            <!-- RIGHT COLUMN: EXECUTIVE HERO CARD -->
+            <aside class="summary-sidebar">
 
-                <!-- MASTER EXECUTIVE HERO CARD -->
-                <div class="hero-price-card">
-                    <div class="hero-label-row">
-                        <span class="hero-subtitle">FINAL PRODUCT SELLING PRICE</span>
-                        <span class="badge-geom">PADTAR + PROFIT</span>
+                <!-- GRAND TOTAL CARD -->
+                <div class="hero-card">
+                    <div class="hero-subtitle">FINAL PRODUCT SELLING PRICE</div>
+                    <div class="hero-price-row">
+                        <div class="hero-price-text" id="hero-final-price">₹5.28</div>
+                        <span class="hero-unit-text">/ pc</span>
                     </div>
 
-                    <div class="hero-price-display">
-                        <div class="hero-price-amount" id="hero-final-price">₹5.28</div>
-                        <span class="hero-unit">/ piece</span>
-                    </div>
-
-                    <div class="hero-metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Net Material Cost</div>
-                            <div class="hero-metric-val blue" id="hero-material-cost">₹4.24</div>
-                        </div>
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Padtar (Cost)</div>
-                            <div class="hero-metric-val amber" id="hero-padtar">₹4.59</div>
-                        </div>
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Profit (+15%)</div>
-                            <div class="hero-metric-val emerald" id="hero-profit">₹0.69</div>
-                        </div>
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Scrap Recovery</div>
-                            <div class="hero-metric-val cyan" id="hero-scrap-recovery">₹4.61</div>
-                        </div>
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Wastage (Chhol)</div>
-                            <div class="hero-metric-val" id="hero-wastage-weight" style="color: #cbd5e1;">5.58 g</div>
-                        </div>
-                        <div class="hero-metric-item">
-                            <div class="hero-metric-label">Utilization</div>
-                            <div class="hero-metric-val blue" id="hero-utilization">42.9%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- VISUAL DATA CHARTS -->
-                <div class="charts-widget-card">
-                    <div class="widget-title">
-                        <span>LIVE INDUSTRIAL TELEMETRY</span>
-                        <span class="form-hint">Retina Visualizer</span>
-                    </div>
-
-                    <div class="canvases-split">
-                        <div class="canvas-box">
-                            <canvas id="canvas-cost-donut" width="180" height="130"></canvas>
-                            <div class="canvas-caption">Cost Structure Split</div>
-                        </div>
-                        <div class="canvas-box">
-                            <canvas id="canvas-weight-gauge" width="180" height="130"></canvas>
-                            <div class="canvas-caption">Material Utilization</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BATCH PRODUCTION SIMULATOR -->
-                <div class="batch-sim-card">
-                    <div class="widget-title">
-                        <span>BATCH PRODUCTION PROJECTION</span>
-                        <span class="badge-geom" id="disp-batch-qty">1,000</span>
-                    </div>
-
-                    <div class="batch-input-row">
-                        <input type="number" id="input-batch-qty" class="form-input" min="1" value="1000" placeholder="Batch Quantity">
-                    </div>
-
-                    <div class="chips-row" style="margin-bottom: 14px;">
-                        <button type="button" class="chip-btn batch-chip" data-qty="100">100 pcs</button>
-                        <button type="button" class="chip-btn batch-chip" data-qty="500">500 pcs</button>
-                        <button type="button" class="chip-btn batch-chip" data-qty="1000">1,000 pcs</button>
-                        <button type="button" class="chip-btn batch-chip" data-qty="5000">5,000 pcs</button>
-                        <button type="button" class="chip-btn batch-chip" data-qty="10000">10,000 pcs</button>
-                    </div>
-
-                    <div class="batch-stats-grid">
-                        <div class="batch-stat-item">
-                            <div class="b-lbl">Raw Material Required</div>
-                            <div class="b-val" id="disp-batch-raw-kg">9.78 kg</div>
-                        </div>
-                        <div class="batch-stat-item">
-                            <div class="b-lbl">Scrap / Chhol Generated</div>
-                            <div class="b-val" id="disp-batch-scrap-kg">5.58 kg</div>
-                        </div>
-                        <div class="batch-stat-item">
-                            <div class="b-lbl">Total Batch Profit</div>
-                            <div class="b-val emerald" id="disp-batch-profit">₹690.00</div>
-                        </div>
-                        <div class="batch-stat-hero">
-                            <div class="b-lbl">Total Lot Invoice / Quotation</div>
-                            <div class="b-val" id="disp-batch-order-value">₹5,280.00</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- AUDIT-READY TECHNICAL COST BREAKDOWN -->
-                <div class="cost-breakdown-card">
-                    <div class="widget-title">
-                        <span>TECHNICAL COST BREAKDOWN</span>
-                        <span class="form-hint">Factory Audit Math</span>
-                    </div>
-
-                    <table class="breakdown-table">
+                    <table class="summary-table">
                         <tbody>
                             <tr>
-                                <td>Gross Raw Material Purchased</td>
+                                <td>Gross Raw Metal Cost</td>
                                 <td id="val-raw-material-cost">₹8.85</td>
                             </tr>
-                            <tr class="sub-recovery">
-                                <td>Less: Scrap Recovery (Chhol Value)</td>
+                            <tr class="credit">
+                                <td>Less: Scrap Recovery (Chhol)</td>
                                 <td id="val-scrap-recovery">-₹4.61</td>
                             </tr>
-                            <tr style="font-weight: 700;">
-                                <td>Effective Net Metal Cost (Material Rs.)</td>
-                                <td id="val-net-material" style="color: var(--primary-light);">₹4.24</td>
+                            <tr class="highlight">
+                                <td>Net Material Cost (Material Rs.)</td>
+                                <td id="val-net-material">₹4.24</td>
                             </tr>
                             <tr>
-                                <td>Labour Charges (Majuri Rs.)</td>
+                                <td>Labour Charges (Majuri)</td>
                                 <td id="val-labour">₹0.35</td>
                             </tr>
-                            <tr style="font-weight: 700; background: rgba(255,255,255,0.02);">
+                            <tr class="highlight">
                                 <td>Production Cost (Padtar Rs.)</td>
-                                <td id="val-padtar" style="color: var(--accent-amber);">₹4.59</td>
+                                <td id="val-padtar">₹4.59</td>
                             </tr>
                             <tr>
-                                <td>Target Profit Margin (15%)</td>
-                                <td id="val-profit-amount" style="color: var(--accent-emerald);">+₹0.69</td>
+                                <td>Target Profit Amount (+15%)</td>
+                                <td id="val-profit-amount" style="color: var(--accent-olive);">+₹0.69</td>
                             </tr>
-                            <tr class="total-row">
-                                <td>Final Product Selling Price</td>
-                                <td id="val-final-price" style="color: #ffffff; font-size: 1.1rem;">₹5.28</td>
+                            <tr style="border-top: 2px solid var(--ink-black); font-size: 1rem;">
+                                <td><strong>Final Selling Price</strong></td>
+                                <td id="val-final-price"><strong>₹5.28</strong></td>
                             </tr>
                         </tbody>
                     </table>
+
+                    <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-subtle); display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.76rem; color: var(--text-muted);">
+                        <div>Scrap Value: <strong id="hero-scrap-recovery" style="color: var(--text-primary);">₹4.61</strong></div>
+                        <div>Wastage Wg: <strong id="hero-wastage-weight" style="color: var(--text-primary);">5.58 g</strong></div>
+                        <div>Utilization: <strong id="hero-utilization" style="color: var(--text-primary);">42.9%</strong></div>
+                        <div>Padtar: <strong id="hero-padtar" style="color: var(--text-primary);">₹4.59</strong></div>
+                        <span id="hero-material-cost" style="display:none;">₹4.24</span>
+                        <span id="hero-profit" style="display:none;">₹0.69</span>
+                    </div>
                 </div>
 
             </aside>
@@ -488,131 +417,131 @@
 
     </main>
 
-    <!-- SETTINGS & CALIBRATION MODAL -->
+    <!-- MOBILE STICKY BOTTOM BAR -->
+    <div class="mobile-sticky-bar">
+        <div class="mobile-sticky-info">
+            <div class="m-lbl">FINAL PRICE</div>
+            <div class="m-price" id="mobile-hero-price">₹5.28 / pc</div>
+        </div>
+        <button type="button" class="main-btn" onclick="window.precimetalApp.goToStage(3);" style="padding: 10px 16px; font-size: 0.85rem;">
+            View Costing
+        </button>
+    </div>
+
+    <!-- SETTINGS MODAL -->
     <div id="modal-settings" class="modal-backdrop">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">⚙️ Application Settings & Formula Calibration</div>
-                <button id="btn-close-settings" class="btn-close">&times;</button>
+        <div class="modal-box">
+            <div class="modal-head">
+                <div class="modal-heading">⚙️ Settings & Calibration</div>
+                <button type="button" id="btn-close-settings" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="setting-default-labour">Default Labour Charge (Majuri)</label>
-                        <div class="input-with-addon">
-                            <input type="number" id="setting-default-labour" class="form-input" step="0.01" value="0.35">
-                            <span class="input-addon">₹ / pc</span>
+                <div class="input-row">
+                    <div class="field-group">
+                        <label class="field-label" for="setting-default-labour">Default Labour (Majuri)</label>
+                        <div class="input-box">
+                            <input type="number" id="setting-default-labour" class="clean-input" step="0.01" value="0.35">
+                            <span class="unit-tag">₹/pc</span>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="setting-default-profit">Default Profit Margin</label>
-                        <div class="input-with-addon">
-                            <input type="number" id="setting-default-profit" class="form-input" step="0.5" value="15.0">
-                            <span class="input-addon">%</span>
+                    <div class="field-group">
+                        <label class="field-label" for="setting-default-profit">Default Profit Margin</label>
+                        <div class="input-box">
+                            <input type="number" id="setting-default-profit" class="clean-input" step="0.5" value="15.0">
+                            <span class="unit-tag">%</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="setting-raw-markup">Raw Metal Purchase Markup (Rod)</label>
-                        <div class="input-with-addon">
-                            <input type="number" id="setting-raw-markup" class="form-input" step="1" value="35.0">
-                            <span class="input-addon">+₹ / kg</span>
+                <div class="input-row">
+                    <div class="field-group">
+                        <label class="field-label" for="setting-raw-markup">Raw Rod Markup</label>
+                        <div class="input-box">
+                            <input type="number" id="setting-raw-markup" class="clean-input" step="1" value="35.0">
+                            <span class="unit-tag">+₹/kg</span>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="setting-scrap-deduction">Scrap / Chhol Deduction</label>
-                        <div class="input-with-addon">
-                            <input type="number" id="setting-scrap-deduction" class="form-input" step="0.5" value="5.0">
-                            <span class="input-addon">-%</span>
+                    <div class="field-group">
+                        <label class="field-label" for="setting-scrap-deduction">Scrap (Chhol) Deduction</label>
+                        <div class="input-box">
+                            <input type="number" id="setting-scrap-deduction" class="clean-input" step="0.5" value="5.0">
+                            <span class="unit-tag">-%</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="setting-length-adjustment">Fixed Length Allowance</label>
-                        <div class="input-with-addon">
-                            <input type="number" id="setting-length-adjustment" class="form-input" step="0.5" value="4.0">
-                            <span class="input-addon">+mm</span>
+                <div class="input-row">
+                    <div class="field-group">
+                        <label class="field-label" for="setting-length-adjustment">Parting Allowance</label>
+                        <div class="input-box">
+                            <input type="number" id="setting-length-adjustment" class="clean-input" step="0.5" value="4.0">
+                            <span class="unit-tag">+mm</span>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label" for="select-density-preset">Material Density Preset</label>
-                        <select id="select-density-preset" class="form-input">
-                            <option value="brass_standard">Brass Standard (CuZn40Pb2) - Jamnagar Alloy</option>
-                            <option value="copper">Pure Electrolytic Copper (ETP)</option>
-                            <option value="mild_steel">Mild Steel / EN1A Free Cutting</option>
-                            <option value="ss304">Stainless Steel 304 / 316</option>
-                            <option value="aluminium">Aluminium 6061-T6</option>
+                    <div class="field-group">
+                        <label class="field-label" for="select-density-preset">Material Preset</label>
+                        <select id="select-density-preset" class="clean-input" style="font-size: 0.85rem; padding: 10px;">
+                            <option value="brass_standard">Brass Standard (Jamnagar Alloy)</option>
+                            <option value="copper">Pure Copper (ETP)</option>
+                            <option value="mild_steel">Mild Steel / EN1A</option>
+                            <option value="ss304">Stainless Steel 304</option>
+                            <option value="aluminium">Aluminium 6061</option>
                         </select>
                     </div>
                 </div>
 
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
-                    <div style="font-weight: 700; margin-bottom: 12px; font-size: 0.9rem;">Geometry Conversion Coefficients</div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label" for="setting-coeff-round">Round Rod Coefficient</label>
-                            <input type="number" id="setting-coeff-round" class="form-input" step="0.000001" value="0.006676">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="setting-coeff-square">Square Bar Coefficient</label>
-                            <input type="number" id="setting-coeff-square" class="form-input" step="0.000001" value="0.007361">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label" for="setting-coeff-hex">Hexagon (HEX) Coefficient</label>
-                            <input type="number" id="setting-coeff-hex" class="form-input" step="0.000001" value="0.008500">
-                        </div>
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                    <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">Geometry Coefficients</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <input type="number" id="setting-coeff-round" class="clean-input" step="0.000001" value="0.006676" placeholder="Round">
+                        <input type="number" id="setting-coeff-square" class="clean-input" step="0.000001" value="0.007361" placeholder="Square">
+                        <input type="number" id="setting-coeff-hex" class="clean-input" step="0.000001" value="0.008500" placeholder="Hex">
                     </div>
                 </div>
 
-                <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" id="btn-backup-json" class="btn btn-sm btn-outline">📥 Download Backup</button>
-                        <label class="btn btn-sm btn-outline" style="margin: 0; cursor: pointer;">
-                            📤 Restore Backup
+                <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 6px;">
+                        <button type="button" id="btn-backup-json" class="touch-chip">Download Backup</button>
+                        <label class="touch-chip" style="margin: 0; cursor: pointer;">
+                            Restore Backup
                             <input type="file" id="input-restore-json" accept=".json" style="display: none;">
                         </label>
                     </div>
-                    <button type="button" id="btn-reset-settings" class="btn btn-sm btn-danger">Restore Factory Defaults</button>
+                    <button type="button" id="btn-reset-settings" class="touch-chip" style="color: var(--accent-terracotta);">Reset Defaults</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="btn-save-settings" class="btn btn-primary">Save Changes</button>
+            <div class="modal-foot">
+                <button type="button" id="btn-save-settings" class="main-btn">Save Settings</button>
             </div>
         </div>
     </div>
 
-    <!-- CALCULATION HISTORY MODAL -->
+    <!-- HISTORY MODAL -->
     <div id="modal-history" class="modal-backdrop">
-        <div class="modal-content" style="max-width: 1100px;">
-            <div class="modal-header">
-                <div class="modal-title">📋 Calculation & Quotation History</div>
-                <button id="btn-close-history" class="btn-close">&times;</button>
+        <div class="modal-box" style="max-width: 860px;">
+            <div class="modal-head">
+                <div class="modal-heading">📋 Calculation History</div>
+                <button type="button" id="btn-close-history" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap;">
-                    <input type="text" id="history-search" class="form-input" placeholder="🔍 Search by part code, geometry..." style="max-width: 320px; padding: 6px 12px; font-size: 0.85rem;">
-                    <div style="display: flex; gap: 10px;">
-                        <button id="btn-export-csv" class="btn btn-sm btn-outline">📊 Export CSV (Excel)</button>
-                        <button id="btn-clear-history" class="btn btn-sm btn-danger">Clear History</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap;">
+                    <input type="text" id="history-search" class="clean-input" placeholder="🔍 Search records..." style="max-width: 260px; padding: 6px 12px; font-size: 0.82rem;">
+                    <div style="display: flex; gap: 6px;">
+                        <button type="button" id="btn-export-csv" class="touch-chip">Export CSV</button>
+                        <button type="button" id="btn-clear-history" class="touch-chip" style="color: var(--accent-terracotta);">Clear All</button>
                     </div>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="history-table">
+                <div style="overflow-x: auto;">
+                    <table class="clean-table">
                         <thead>
                             <tr>
-                                <th>Part Code & Date</th>
-                                <th>Geometry</th>
-                                <th>Dimensions</th>
-                                <th>Material Wg</th>
-                                <th>Wastage / Util</th>
-                                <th>Honey Rate</th>
+                                <th>Part & Date</th>
+                                <th>Shape</th>
+                                <th>Size</th>
+                                <th>Weight</th>
                                 <th>Padtar</th>
                                 <th>Final Price</th>
-                                <th>Actions</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="history-table-body">
@@ -624,23 +553,38 @@
         </div>
     </div>
 
-    <!-- PRINT / QUOTATION REPORT MODAL -->
+    <!-- PRINT / QUOTE MODAL -->
     <div id="modal-print" class="modal-backdrop">
-        <div class="modal-content" style="max-width: 850px; background: #ffffff; color: #0f172a;">
-            <div class="modal-header" style="background: #f8fafc;">
-                <div class="modal-title" style="color: #0f172a;">Official Technical Costing Sheet & Quotation</div>
-                <button id="btn-close-print" class="btn-close" style="color: #64748b;">&times;</button>
+        <div class="modal-box" style="max-width: 760px;">
+            <div class="modal-head">
+                <div class="modal-heading">Technical Quotation Sheet</div>
+                <button type="button" id="btn-close-print" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
                 <div id="print-sheet-content" class="print-sheet-wrapper">
-                    <!-- Dynamic Printable Quotation Sheet -->
+                    <!-- Populated dynamically -->
                 </div>
             </div>
-            <div class="modal-footer" style="background: #f8fafc;">
-                <button id="btn-trigger-print" class="btn btn-primary">🖨️ Print / Save as PDF</button>
+            <div class="modal-foot">
+                <button type="button" id="btn-trigger-print" class="main-btn">🖨️ Print / Save PDF</button>
             </div>
         </div>
     </div>
+
+    <!-- Collapsible helper script -->
+    <script>
+        function toggleCollapse(id) {
+            const el = document.getElementById(id);
+            const arrow = document.getElementById(id + '-arrow');
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                if (arrow) arrow.textContent = '▴';
+            } else {
+                el.style.display = 'none';
+                if (arrow) arrow.textContent = '▾';
+            }
+        }
+    </script>
 
     <!-- Scripts -->
     <script src="js/calculator.js"></script>

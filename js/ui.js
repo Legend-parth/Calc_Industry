@@ -550,6 +550,8 @@
 
             // Executive Hero Outputs
             if (this.heroFinalPrice) this.heroFinalPrice.textContent = '₹' + res.formatted.finalSellingPrice;
+            const mobHero = document.getElementById('mobile-hero-price');
+            if (mobHero) mobHero.textContent = '₹' + res.formatted.finalSellingPrice + ' / pc';
             if (this.heroMaterialCost) this.heroMaterialCost.textContent = '₹' + res.formatted.netMaterialCost;
             if (this.heroPadtar) this.heroPadtar.textContent = '₹' + res.formatted.padtar;
             if (this.heroProfit) this.heroProfit.textContent = '₹' + res.formatted.profitAmount;
