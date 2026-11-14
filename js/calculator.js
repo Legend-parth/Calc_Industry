@@ -40,11 +40,13 @@
         quoteValidityDays: 8,  // Default market price validity (days)
         companyProfile: {
             name: 'Satyam Brass',
+            sub: 'Precision Turned & Machined Components',
             subtitle: 'Precision Turned & Machined Components',
             address: '534, G.I.D.C., Phase-II, Dared, Jamnagar-361 004. (Guj.) India.',
             phone: '+91 9428888666, +91 9426229661',
             email: 'info@satyambrass.com | satyambrass534@gmail.com',
             website: 'www.satyambrass.com',
+            logo: 'assets/satyam.jpeg',
             logoUrl: 'assets/satyam.jpeg'
         }
     };

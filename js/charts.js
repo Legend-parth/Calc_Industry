@@ -14,27 +14,34 @@
         static renderCostDonut(canvas, costData) {
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             const dpr = window.devicePixelRatio || 1;
             const rect = canvas.getBoundingClientRect();
 
-            if (rect.width === 0 || rect.height === 0) return;
+            let width = rect.width;
+            let height = rect.height;
+            if (!width || width === 0) {
+                width = canvas.parentElement ? canvas.parentElement.clientWidth : 160;
+            }
+            if (!height || height === 0) {
+                height = 120;
+            }
+            if (!width || width === 0) width = 160;
 
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const width = rect.width;
-            const height = rect.height;
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = Math.min(centerX, centerY) - 10;
-            const innerRadius = radius * 0.70;
+            const radius = Math.max(10, Math.min(centerX, centerY) - 8);
+            const innerRadius = radius * 0.68;
 
             ctx.clearRect(0, 0, width, height);
 
-            const netMat = Math.max(0, costData.netMaterial || 0);
-            const labour = Math.max(0, costData.labour || 0);
-            const profit = Math.max(0, costData.profit || 0);
+            const netMat = Math.max(0, costData ? (costData.netMaterial || 0) : 0);
+            const labour = Math.max(0, costData ? (costData.labour || 0) : 0);
+            const profit = Math.max(0, costData ? (costData.profit || 0) : 0);
             const total = netMat + labour + profit;
 
             if (total <= 0) {
@@ -52,7 +59,7 @@
                 ctx.fillText('FINAL PRICE', centerX, centerY - 9);
 
                 ctx.fillStyle = '#1A1A1A';
-                ctx.font = '700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
+                ctx.font = '700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
                 ctx.fillText('₹0.00', centerX, centerY + 8);
                 ctx.restore();
                 return;
@@ -61,7 +68,7 @@
             const segments = [
                 { label: 'Net Metal', value: netMat, color: '#1A1A1A' }, // Deep charcoal
                 { label: 'Labour', value: labour, color: '#8C8275' },    // Warm stone
-                { label: 'Profit', value: profit, color: '#B85D36' }     // Warm terracotta / clay
+                { label: 'Profit', value: profit, color: '#B65738' }     // Warm terracotta
             ];
 
             let startAngle = -Math.PI / 2;
@@ -79,8 +86,7 @@
                 ctx.fillStyle = seg.color;
                 ctx.fill();
 
-                // Crisp clean white separator
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1.5;
                 ctx.strokeStyle = '#FFFFFF';
                 ctx.stroke();
                 ctx.restore();
@@ -97,7 +103,7 @@
             ctx.fillText('FINAL PRICE', centerX, centerY - 9);
 
             ctx.fillStyle = '#1A1A1A';
-            ctx.font = '700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
+            ctx.font = '700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
             ctx.fillText('₹' + total.toFixed(2), centerX, centerY + 8);
             ctx.restore();
         }
@@ -108,20 +114,27 @@
         static renderWeightGauge(canvas, productWeight, expectedWeight) {
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
             const dpr = window.devicePixelRatio || 1;
             const rect = canvas.getBoundingClientRect();
 
-            if (rect.width === 0 || rect.height === 0) return;
+            let width = rect.width;
+            let height = rect.height;
+            if (!width || width === 0) {
+                width = canvas.parentElement ? canvas.parentElement.clientWidth : 160;
+            }
+            if (!height || height === 0) {
+                height = 120;
+            }
+            if (!width || width === 0) width = 160;
 
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-            const width = rect.width;
-            const height = rect.height;
             const centerX = width / 2;
-            const centerY = height * 0.78;
-            const radius = Math.min(width * 0.44, height * 0.65);
+            const centerY = height * 0.82;
+            const radius = Math.max(15, Math.min(width * 0.40, height * 0.60));
             const lineWidth = 12;
 
             ctx.clearRect(0, 0, width, height);
@@ -129,7 +142,7 @@
             const startAngle = Math.PI;
             const endAngle = Math.PI * 2;
 
-            // Background Track
+            // Background Track Arc
             ctx.save();
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, startAngle, endAngle, false);
@@ -139,13 +152,13 @@
             ctx.stroke();
             ctx.restore();
 
-            const pWg = Math.max(0, productWeight || 0);
-            const eWg = Math.max(0, expectedWeight || 0);
+            const pWg = Math.max(0, parseFloat(productWeight) || 0);
+            const eWg = Math.max(0, parseFloat(expectedWeight) || 0);
             const pct = eWg > 0 ? Math.min(100, (pWg / eWg) * 100) : 0;
-            const activeAngle = startAngle + (pct / 100) * Math.PI;
 
             // Active Arc
             if (pct > 0) {
+                const activeAngle = startAngle + (pct / 100) * Math.PI;
                 ctx.save();
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, startAngle, activeAngle, false);
@@ -161,11 +174,11 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillStyle = '#1A1A1A';
-            ctx.font = '700 20px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
+            ctx.font = '700 18px -apple-system, BlinkMacSystemFont, "Segoe UI", monospace';
             ctx.fillText(`${pct.toFixed(1)}%`, centerX, centerY - 20);
 
             ctx.fillStyle = '#76726B';
-            ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            ctx.font = '600 10px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
             ctx.fillText('UTILIZATION', centerX, centerY - 4);
             ctx.restore();
         }

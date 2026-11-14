@@ -140,7 +140,11 @@
             this.historySearch = document.getElementById('history-search');
             this.historyCountBadge = document.getElementById('history-count-badge');
 
-            // Quotation Modal Controls
+            // Quotation & Costing Modal Controls
+            this.btnOpenCosting = document.getElementById('btn-open-costing');
+            this.btnTabCommercial = document.getElementById('btn-tab-commercial');
+            this.btnTabInternal = document.getElementById('btn-tab-internal');
+            this.printModalHeading = document.getElementById('print-modal-heading');
             this.quoteFormatSelect = document.getElementById('quote-format-select');
             this.quoteJobSelect = document.getElementById('quote-job-select');
             this.quoteClientName = document.getElementById('quote-client-name');
@@ -160,15 +164,17 @@
          */
         applyCompanyBranding() {
             const profile = (this.storage.settings && this.storage.settings.companyProfile) ? this.storage.settings.companyProfile : {};
+            const compName = (profile.name || 'Satyam Brass').trim();
+            document.title = `${compName} | Metal Weight & Cost Calculator`;
             if (this.appHeaderTitle) {
-                this.appHeaderTitle.textContent = profile.name || 'Satyam Brass';
+                this.appHeaderTitle.textContent = compName.toUpperCase();
             }
             if (this.appHeaderSub) {
-                this.appHeaderSub.textContent = profile.sub || 'Precision Turned & Machined Components';
+                this.appHeaderSub.textContent = profile.sub || profile.subtitle || 'Precision Turned & Machined Components';
             }
             if (this.appHeaderLogo) {
-                this.appHeaderLogo.src = profile.logo || 'assets/satyam.jpeg';
-                this.appHeaderLogo.alt = profile.name || 'Satyam Brass';
+                this.appHeaderLogo.src = profile.logo || profile.logoUrl || 'assets/satyam.jpeg';
+                this.appHeaderLogo.alt = compName;
             }
         }
 
@@ -270,12 +276,6 @@
                         }
                     });
                 });
-            }
-
-            // Quick Preset Loader (e.g. Factory Sample A-1)
-            const btnLoadSample = document.getElementById('btn-load-sample');
-            if (btnLoadSample) {
-                btnLoadSample.addEventListener('click', () => this.loadFactorySampleA1());
             }
 
             // Reset Calculation
@@ -445,14 +445,49 @@
                 });
             }
 
-            // Print / Quotation Sheet Modal
+            // Print / Quotation / Costing Sheet Modals
             const btnOpenPrint = document.getElementById('btn-open-print');
             const btnClosePrint = document.getElementById('btn-close-print');
             const btnTriggerPrint = document.getElementById('btn-trigger-print');
 
-            if (btnOpenPrint) btnOpenPrint.addEventListener('click', () => this.openPrintModal());
-            if (btnClosePrint) btnClosePrint.addEventListener('click', () => this.closePrintModal());
-            if (btnTriggerPrint) btnTriggerPrint.addEventListener('click', () => window.print());
+            if (btnOpenPrint) {
+                btnOpenPrint.addEventListener('click', () => this.openPrintModal(null, 'commercial'));
+            }
+            if (this.btnOpenCosting) {
+                this.btnOpenCosting.addEventListener('click', () => this.openPrintModal(null, 'internal'));
+            }
+            if (btnClosePrint) {
+                btnClosePrint.addEventListener('click', () => this.closePrintModal());
+            }
+
+            if (this.btnTabCommercial) {
+                this.btnTabCommercial.addEventListener('click', () => this.setQuoteFormat('commercial'));
+            }
+            if (this.btnTabInternal) {
+                this.btnTabInternal.addEventListener('click', () => this.setQuoteFormat('internal'));
+            }
+
+            if (btnTriggerPrint) {
+                btnTriggerPrint.addEventListener('click', () => {
+                    const savedTitle = document.title;
+                    document.title = ' ';
+                    window.print();
+                    setTimeout(() => {
+                        document.title = savedTitle;
+                    }, 1000);
+                });
+            }
+
+            // Suppress browser header/footer title when printing via keyboard shortcut (Ctrl+P)
+            window.addEventListener('beforeprint', () => {
+                this._savedTitleBeforePrint = document.title;
+                document.title = ' ';
+            });
+            window.addEventListener('afterprint', () => {
+                if (this._savedTitleBeforePrint) {
+                    document.title = this._savedTitleBeforePrint;
+                }
+            });
 
             if (this.quoteJobSelect) {
                 this.quoteJobSelect.addEventListener('change', () => this.handleQuoteJobChange());
@@ -547,19 +582,23 @@
         }
 
         /**
-         * Reset form inputs
+         * Reset form inputs (clean initial zero state)
          */
         resetForm() {
-            this.inputItemCode.value = 'Item A-1';
-            if (this.inputDrawingName) this.inputDrawingName.value = 'DWG-001';
+            if (this.inputItemCode) this.inputItemCode.value = '';
+            if (this.inputDrawingName) this.inputDrawingName.value = '';
             this.selectGeometry('round');
-            this.inputRod.value = '';
+            if (this.inputRod) this.inputRod.value = '';
             if (this.inputRod2) this.inputRod2.value = '';
-            this.inputLength.value = '';
-            this.inputHoney.value = '';
-            this.inputActualWeight.value = '';
-            this.inputLabour.value = (this.storage.settings.defaultLabour !== undefined ? this.storage.settings.defaultLabour : 0.35).toFixed(2);
-            this.inputProfitPercent.value = (this.storage.settings.defaultProfitPercent !== undefined ? this.storage.settings.defaultProfitPercent : 15.0).toFixed(1);
+            if (this.inputLength) this.inputLength.value = '';
+            if (this.inputHoney) this.inputHoney.value = '';
+            if (this.inputActualWeight) this.inputActualWeight.value = '';
+            if (this.inputLabour) {
+                this.inputLabour.value = (this.storage.settings.defaultLabour !== undefined ? this.storage.settings.defaultLabour : 0.35).toFixed(2);
+            }
+            if (this.inputProfitPercent) {
+                this.inputProfitPercent.value = (this.storage.settings.defaultProfitPercent !== undefined ? this.storage.settings.defaultProfitPercent : 15.0).toFixed(1);
+            }
             this.goToStage(1);
             this.recalculate();
             if (this.inputRod) this.inputRod.focus();
@@ -701,8 +740,8 @@
             const actualWeight = parseFloat(this.inputActualWeight ? this.inputActualWeight.value : 0) || 0;
             const labour = parseFloat(this.inputLabour ? this.inputLabour.value : 0) || 0;
             const profitPercent = parseFloat(this.inputProfitPercent ? this.inputProfitPercent.value : 0) || 0;
-            const itemCode = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value : 'Item A-1';
-            const drawingName = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value : 'DWG-001';
+            const itemCode = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value.trim() : '';
+            const drawingName = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value.trim() : '';
 
             const result = this.calculator.calculate({
                 geometry: this.selectedGeometry,
@@ -896,7 +935,8 @@
                     <td>₹${item.padtar.toFixed(2)}</td>
                     <td><strong class="highlight-val">₹${item.finalSellingPrice.toFixed(2)}</strong></td>
                     <td class="history-actions">
-                        <button class="btn-sm btn-outline btn-quote-record" data-id="${item.id}" title="Generate quotation sheet">📄 Quote</button>
+                        <button class="btn-sm btn-outline btn-quote-record" data-id="${item.id}" title="Generate Client Commercial Quotation PDF">📄 Quote</button>
+                        <button class="btn-sm btn-outline btn-costing-record" data-id="${item.id}" title="Generate Internal Factory Costing Sheet PDF">📊 Costing</button>
                         <button class="btn-sm btn-outline btn-load-record" data-id="${item.id}" title="Load into calculator">Load</button>
                         <button class="btn-sm btn-danger btn-delete-record" data-id="${item.id}" title="Delete record">✕</button>
                     </td>
@@ -904,7 +944,12 @@
 
                 tr.querySelector('.btn-quote-record').addEventListener('click', () => {
                     this.closeHistoryModal();
-                    this.openPrintModal(item);
+                    this.openPrintModal(item, 'commercial');
+                });
+
+                tr.querySelector('.btn-costing-record').addEventListener('click', () => {
+                    this.closeHistoryModal();
+                    this.openPrintModal(item, 'internal');
                 });
 
                 tr.querySelector('.btn-load-record').addEventListener('click', () => {
@@ -923,18 +968,22 @@
         }
 
         loadSavedRecord(item) {
-            this.inputItemCode.value = item.itemCode || '';
-            if (this.inputDrawingName) this.inputDrawingName.value = item.drawingName || 'DWG-001';
+            if (this.inputItemCode) this.inputItemCode.value = item.itemCode || '';
+            if (this.inputDrawingName) this.inputDrawingName.value = item.drawingName || '';
             this.selectGeometry(item.geometry);
-            this.inputRod.value = item.rod || '';
+            if (this.inputRod) this.inputRod.value = item.rod || '';
             if (this.inputRod2) this.inputRod2.value = item.rod2 || '';
-            this.inputLength.value = item.length || '';
-            this.inputHoney.value = item.honey || '';
-            this.inputActualWeight.value = item.actualWeight || '';
-            this.inputLabour.value = (item.majuri !== undefined ? item.majuri : 0.35).toFixed(2);
-            this.inputProfitPercent.value = (item.profitPercent !== undefined ? item.profitPercent : 15.0).toFixed(1);
+            if (this.inputLength) this.inputLength.value = item.length || '';
+            if (this.inputHoney) this.inputHoney.value = item.honey || '';
+            if (this.inputActualWeight) this.inputActualWeight.value = item.actualWeight || '';
+            if (this.inputLabour) {
+                this.inputLabour.value = (item.majuri !== undefined ? item.majuri : 0.35).toFixed(2);
+            }
+            if (this.inputProfitPercent) {
+                this.inputProfitPercent.value = (item.profitPercent !== undefined ? item.profitPercent : 15.0).toFixed(1);
+            }
             this.recalculate();
-            this.showNotification(`Loaded record: ${item.itemCode}`);
+            this.showNotification(`Loaded record: ${item.itemCode || 'Part'}`);
         }
 
         /**
@@ -1010,10 +1059,29 @@
         }
 
         /**
-         * Printable Quotation Sheet Modal
+         * Printable Quotation & Costing Sheet Modal
          * Supports passing an explicit history record or defaulting to current calculation / latest record
          */
-        openPrintModal(selectedRecord = null) {
+        openPrintModal(selectedRecord = null, defaultFormat = 'commercial') {
+            const format = (defaultFormat === 'internal') ? 'internal' : 'commercial';
+            if (this.quoteFormatSelect) {
+                this.quoteFormatSelect.value = format;
+            }
+            if (this.btnTabCommercial && this.btnTabInternal) {
+                if (format === 'commercial') {
+                    this.btnTabCommercial.classList.add('active');
+                    this.btnTabInternal.classList.remove('active');
+                } else {
+                    this.btnTabInternal.classList.add('active');
+                    this.btnTabCommercial.classList.remove('active');
+                }
+            }
+            if (this.printModalHeading) {
+                this.printModalHeading.textContent = format === 'commercial'
+                    ? '📄 Commercial Quotation & Client Work Order'
+                    : '📊 Internal Factory Costing & Technical Sheet';
+            }
+
             // Populate Job Selector dropdown
             if (this.quoteJobSelect) {
                 this.quoteJobSelect.innerHTML = '';
@@ -1024,7 +1092,7 @@
                 const optCurrent = document.createElement('option');
                 optCurrent.value = 'current';
                 optCurrent.textContent = hasCurrentData
-                    ? `⚡ Current Active Calculation (${currentRes.itemCode || 'Untitled'} - ₹${currentRes.finalSellingPrice.toFixed(2)}/pc)`
+                    ? `⚡ Current Active Calculation (${currentRes.itemCode || 'Active Part'} - ₹${currentRes.finalSellingPrice.toFixed(2)}/pc)`
                     : '⚡ Current Active Calculation (Empty)';
                 this.quoteJobSelect.appendChild(optCurrent);
 
@@ -1045,24 +1113,24 @@
                 if (selectedRecord && selectedRecord.id) {
                     this.activeQuoteRecord = selectedRecord;
                     this.quoteJobSelect.value = selectedRecord.id;
-                    if (this.quoteItemName) this.quoteItemName.value = selectedRecord.itemCode || 'Item A-1';
-                    if (this.quoteDrawingName) this.quoteDrawingName.value = selectedRecord.drawingName || 'DWG-001';
+                    if (this.quoteItemName) this.quoteItemName.value = selectedRecord.itemCode || '';
+                    if (this.quoteDrawingName) this.quoteDrawingName.value = selectedRecord.drawingName || '';
                 } else if (hasCurrentData) {
                     this.activeQuoteRecord = null; // 'current'
                     this.quoteJobSelect.value = 'current';
-                    if (this.quoteItemName) this.quoteItemName.value = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value : 'Item A-1';
-                    if (this.quoteDrawingName) this.quoteDrawingName.value = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value : 'DWG-001';
+                    if (this.quoteItemName) this.quoteItemName.value = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value : '';
+                    if (this.quoteDrawingName) this.quoteDrawingName.value = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value : '';
                 } else if (historyList.length > 0) {
                     // Default to most recent history item if current calculator is empty
                     this.activeQuoteRecord = historyList[0];
                     this.quoteJobSelect.value = historyList[0].id;
-                    if (this.quoteItemName) this.quoteItemName.value = historyList[0].itemCode || 'Item A-1';
-                    if (this.quoteDrawingName) this.quoteDrawingName.value = historyList[0].drawingName || 'DWG-001';
+                    if (this.quoteItemName) this.quoteItemName.value = historyList[0].itemCode || '';
+                    if (this.quoteDrawingName) this.quoteDrawingName.value = historyList[0].drawingName || '';
                 } else {
                     this.activeQuoteRecord = null;
                     this.quoteJobSelect.value = 'current';
-                    if (this.quoteItemName) this.quoteItemName.value = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value : 'Item A-1';
-                    if (this.quoteDrawingName) this.quoteDrawingName.value = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value : 'DWG-001';
+                    if (this.quoteItemName) this.quoteItemName.value = (this.inputItemCode && this.inputItemCode.value) ? this.inputItemCode.value : '';
+                    if (this.quoteDrawingName) this.quoteDrawingName.value = (this.inputDrawingName && this.inputDrawingName.value) ? this.inputDrawingName.value : '';
                 }
             }
 
@@ -1076,14 +1144,31 @@
                 this.quoteValidityDays.value = this.storage.settings.quoteValidityDays || 8;
             }
 
-            // Default format to commercial client quotation
-            if (this.quoteFormatSelect) {
-                this.quoteFormatSelect.value = 'commercial';
-            }
-
             this.renderCurrentQuoteSheet();
 
             if (this.modalPrint) this.modalPrint.classList.add('active');
+        }
+
+        setQuoteFormat(fmt) {
+            const format = (fmt === 'internal') ? 'internal' : 'commercial';
+            if (this.quoteFormatSelect) {
+                this.quoteFormatSelect.value = format;
+            }
+            if (this.btnTabCommercial && this.btnTabInternal) {
+                if (format === 'commercial') {
+                    this.btnTabCommercial.classList.add('active');
+                    this.btnTabInternal.classList.remove('active');
+                } else {
+                    this.btnTabInternal.classList.add('active');
+                    this.btnTabCommercial.classList.remove('active');
+                }
+            }
+            if (this.printModalHeading) {
+                this.printModalHeading.textContent = format === 'commercial'
+                    ? '📄 Commercial Quotation & Client Work Order'
+                    : '📊 Internal Factory Costing & Technical Sheet';
+            }
+            this.renderCurrentQuoteSheet();
         }
 
         handleQuoteJobChange() {
@@ -1092,16 +1177,16 @@
             if (val === 'current') {
                 this.activeQuoteRecord = null;
                 if (this.quoteItemName && this.inputItemCode) {
-                    this.quoteItemName.value = this.inputItemCode.value || 'Item A-1';
+                    this.quoteItemName.value = this.inputItemCode.value || '';
                 }
                 if (this.quoteDrawingName && this.inputDrawingName) {
-                    this.quoteDrawingName.value = this.inputDrawingName.value || 'DWG-001';
+                    this.quoteDrawingName.value = this.inputDrawingName.value || '';
                 }
             } else {
                 this.activeQuoteRecord = this.storage.history.find(h => h.id === val) || null;
                 if (this.activeQuoteRecord) {
-                    if (this.quoteItemName) this.quoteItemName.value = this.activeQuoteRecord.itemCode || 'Item A-1';
-                    if (this.quoteDrawingName) this.quoteDrawingName.value = this.activeQuoteRecord.drawingName || 'DWG-001';
+                    if (this.quoteItemName) this.quoteItemName.value = this.activeQuoteRecord.itemCode || '';
+                    if (this.quoteDrawingName) this.quoteDrawingName.value = this.activeQuoteRecord.drawingName || '';
                 }
             }
             this.renderCurrentQuoteSheet();
@@ -1111,7 +1196,7 @@
             if (!this.activeQuoteRecord) return;
             this.loadSavedRecord(this.activeQuoteRecord);
             this.closePrintModal();
-            this.showNotification(`Loaded ${this.activeQuoteRecord.itemCode} into active calculator.`);
+            this.showNotification(`Loaded ${this.activeQuoteRecord.itemCode || 'Part'} into active calculator.`);
         }
 
         renderCurrentQuoteSheet() {
@@ -1132,10 +1217,10 @@
                     labour: rec.majuri,
                     profitPercent: rec.profitPercent,
                     itemCode: rec.itemCode,
-                    drawingName: rec.drawingName || 'DWG-001'
+                    drawingName: rec.drawingName || ''
                 });
                 if (this.quoteSourceStatus) {
-                    this.quoteSourceStatus.textContent = `Saved Record: ${rec.itemCode}`;
+                    this.quoteSourceStatus.textContent = `Saved Record: ${rec.itemCode || 'Part'}`;
                 }
                 if (this.btnLoadQuoteToCalc) {
                     this.btnLoadQuoteToCalc.style.display = 'inline-flex';
@@ -1159,27 +1244,20 @@
                         <div style="font-size: 2.5rem; margin-bottom: 10px;">📄</div>
                         <h3 style="margin-bottom: 8px; color: var(--text-primary); font-size: 1.15rem;">No Active Calculation Entered</h3>
                         <p style="color: var(--text-muted); font-size: 0.88rem; max-width: 480px; margin: 0 auto 20px; line-height: 1.5;">
-                            The <strong>Technical Quotation Sheet</strong> generates a formal manufacturing commercial quote and client work order. Enter rod dimensions in <strong>Step 1</strong>, or select a saved part from your history above.
+                            Please enter rod dimensions in <strong>Step 1</strong> to generate a commercial quotation or internal costing sheet, or select a saved part from your history above.
                         </p>
                         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                            <button type="button" class="main-btn" id="btn-quote-empty-sample">⚡ Load Factory Sample A-1</button>
-                            <button type="button" class="outline-btn" id="btn-quote-empty-close">← Back to Calculator</button>
+                            <button type="button" class="main-btn" id="btn-quote-empty-close">← Enter Dimensions in Step 1</button>
                         </div>
                     </div>
                 `;
 
-                const btnSample = printContainer.querySelector('#btn-quote-empty-sample');
-                if (btnSample) {
-                    btnSample.addEventListener('click', () => {
-                        this.loadFactorySampleA1();
-                        this.openPrintModal();
-                    });
-                }
                 const btnClose = printContainer.querySelector('#btn-quote-empty-close');
                 if (btnClose) {
                     btnClose.addEventListener('click', () => {
                         this.closePrintModal();
                         this.goToStage(1);
+                        if (this.inputRod) this.inputRod.focus();
                     });
                 }
                 return;
@@ -1188,8 +1266,8 @@
             const qty = parseInt(this.quoteBatchQty ? this.quoteBatchQty.value : 1000, 10) || 1000;
             const batch = this.calculator.calculateBatch(res, qty);
             const clientName = (this.quoteClientName ? this.quoteClientName.value : '').trim();
-            const itemName = (this.quoteItemName && this.quoteItemName.value) ? this.quoteItemName.value.trim() : (res.itemCode || 'Item A-1');
-            const drawingName = (this.quoteDrawingName && this.quoteDrawingName.value) ? this.quoteDrawingName.value.trim() : (res.drawingName || 'DWG-001');
+            const itemName = (this.quoteItemName && this.quoteItemName.value) ? this.quoteItemName.value.trim() : (res.itemCode || 'Turned Component');
+            const drawingName = (this.quoteDrawingName && this.quoteDrawingName.value) ? this.quoteDrawingName.value.trim() : (res.drawingName || '-');
             const validityDays = parseInt(this.quoteValidityDays ? this.quoteValidityDays.value : 8, 10) || 8;
             const quoteFormat = this.quoteFormatSelect ? this.quoteFormatSelect.value : 'commercial';
 

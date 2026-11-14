@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRECIMETAL™ | Industrial Metal Cost Calculator</title>
+    <title>Satyam Brass | Metal Weight & Cost Calculator</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="stylesheet" href="css/styles.css">
 </head>
@@ -23,14 +23,14 @@
             </div>
 
             <div class="header-actions">
-                <button type="button" id="btn-load-sample" class="icon-btn" title="Load Factory Reference Sample A-1">
-                    ⚡ Sample A-1
+                <button type="button" id="btn-open-print" class="icon-btn" title="Generate Client Commercial Quotation (PDF)">
+                    📄 Client Quote
+                </button>
+                <button type="button" id="btn-open-costing" class="icon-btn" title="Generate Full Internal Factory Costing Sheet (PDF)">
+                    📊 Full Costing
                 </button>
                 <button type="button" id="btn-open-history" class="icon-btn">
                     📋 History <span id="history-count-badge" style="display:none; font-weight:700;">0</span>
-                </button>
-                <button type="button" id="btn-open-print" class="icon-btn">
-                    🖨️ Quote
                 </button>
                 <button type="button" id="btn-open-settings" class="icon-btn" title="Settings">
                     ⚙️
@@ -71,8 +71,8 @@
                     <div class="card-head" style="flex-wrap: wrap; gap: 8px;">
                         <h2 class="card-title">1. Metal Profile & Dimensions</h2>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="text" id="input-item-code" class="clean-input" value="Item A-1" placeholder="Item Name" style="width: 120px; padding: 6px 10px; font-size: 0.82rem;" title="Item Name">
-                            <input type="text" id="input-drawing-name" class="clean-input" value="DWG-001" placeholder="Drawing Ref" style="width: 105px; padding: 6px 10px; font-size: 0.82rem;" title="Drawing Name / Ref">
+                            <input type="text" id="input-item-code" class="clean-input" value="" placeholder="Item Name" style="width: 120px; padding: 6px 10px; font-size: 0.82rem;" title="Item Name">
+                            <input type="text" id="input-drawing-name" class="clean-input" value="" placeholder="Drawing Ref" style="width: 105px; padding: 6px 10px; font-size: 0.82rem;" title="Drawing Name / Ref">
                         </div>
                     </div>
 
@@ -198,7 +198,7 @@
                         <div class="chips-bar">
                             <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='820.00'; window.precimetalApp.recalculate();">₹820</button>
                             <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='850.00'; window.precimetalApp.recalculate();">₹850</button>
-                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='870.00'; window.precimetalApp.recalculate();">₹870 (Demo)</button>
+                            <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='870.00'; window.precimetalApp.recalculate();">₹870</button>
                             <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='895.00'; window.precimetalApp.recalculate();">₹895</button>
                             <button type="button" class="touch-chip" onclick="document.getElementById('input-honey').value='920.00'; window.precimetalApp.recalculate();">₹920</button>
                         </div>
@@ -670,27 +670,32 @@
 
     <!-- PRINT / QUOTE MODAL -->
     <div id="modal-print" class="modal-backdrop">
-        <div class="modal-box" style="max-width: 820px;">
+        <div class="modal-box" style="max-width: 840px;">
             <div class="modal-head">
-                <div class="modal-heading">📄 Commercial Quotation & Client Work Order</div>
+                <div class="modal-heading" id="print-modal-heading">📄 Commercial Quotation & Client Work Order</div>
                 <button type="button" id="btn-close-print" class="modal-close">&times;</button>
             </div>
             <div class="modal-body" style="padding: 16px 20px;">
                 <!-- Quote Configuration & Job Selection Bar (Hidden when printing) -->
                 <div class="quote-toolbar no-print" style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Quotation Settings & Parameters</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <select id="quote-format-select" class="clean-input" style="font-size: 0.76rem; padding: 4px 8px; font-weight: 600;">
-                                <option value="commercial" selected>📄 Commercial Client Quotation (Standard PDF)</option>
-                                <option value="internal">🏭 Internal Factory Costing Sheet</option>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button type="button" id="btn-tab-commercial" class="touch-chip active" style="font-weight: 700; padding: 6px 14px; font-size: 0.8rem;">
+                                📄 Client Quote (Customer PDF)
+                            </button>
+                            <button type="button" id="btn-tab-internal" class="touch-chip" style="font-weight: 700; padding: 6px 14px; font-size: 0.8rem;">
+                                📊 Full Costing (Factory PDF)
+                            </button>
+                            <select id="quote-format-select" class="clean-input" style="display: none;">
+                                <option value="commercial" selected>Commercial Client Quotation</option>
+                                <option value="internal">Internal Factory Costing</option>
                             </select>
-                            <span id="quote-source-status" style="font-size: 0.75rem; color: var(--accent-olive); font-weight: 600;">Live Active Calculation</span>
                         </div>
+                        <span id="quote-source-status" style="font-size: 0.75rem; color: var(--accent-olive); font-weight: 600;">Live Active Calculation</span>
                     </div>
                     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
                         <div>
-                            <label for="quote-job-select" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Select Job to Quote:</label>
+                            <label for="quote-job-select" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Select Job to Quote / Export:</label>
                             <select id="quote-job-select" class="clean-input" style="font-size: 0.82rem; padding: 6px 10px; font-weight: 600; width: 100%;">
                                 <option value="current">⚡ Current Active Calculation</option>
                             </select>
@@ -703,11 +708,11 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <div>
                             <label for="quote-item-name" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Item Name:</label>
-                            <input type="text" id="quote-item-name" class="clean-input" placeholder="Item A-1" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
+                            <input type="text" id="quote-item-name" class="clean-input" placeholder="Part Name" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
                         </div>
                         <div>
                             <label for="quote-drawing-name" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Drawing Name / Ref:</label>
-                            <input type="text" id="quote-drawing-name" class="clean-input" placeholder="DWG-001" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
+                            <input type="text" id="quote-drawing-name" class="clean-input" placeholder="Drawing Ref" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
                         </div>
                         <div>
                             <label for="quote-batch-qty" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Quantity (pcs):</label>
@@ -730,7 +735,7 @@
             </div>
             <div class="modal-foot">
                 <button type="button" id="btn-load-quote-to-calc" class="outline-btn" style="display: none;">📥 Load Job into Calculator</button>
-                <button type="button" id="btn-trigger-print" class="main-btn">🖨️ Print / Save PDF</button>
+                <button type="button" id="btn-trigger-print" class="main-btn">🖨️ Print / Save as PDF</button>
             </div>
         </div>
     </div>
@@ -740,9 +745,18 @@
         function toggleCollapse(id) {
             const el = document.getElementById(id);
             const arrow = document.getElementById(id + '-arrow');
-            if (el.style.display === 'none') {
+            if (!el) return;
+            const isClosed = el.style.display === 'none' || window.getComputedStyle(el).display === 'none';
+            if (isClosed) {
                 el.style.display = 'block';
                 if (arrow) arrow.textContent = '▴';
+                if (id === 'gauges-collapse' && window.precimetalApp) {
+                    setTimeout(function() {
+                        if (window.precimetalApp.currentResult) {
+                            window.precimetalApp.renderCharts(window.precimetalApp.currentResult);
+                        }
+                    }, 60);
+                }
             } else {
                 el.style.display = 'none';
                 if (arrow) arrow.textContent = '▾';
