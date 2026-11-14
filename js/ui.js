@@ -220,6 +220,44 @@
                 }
             });
 
+            // Enter key flow navigation between inputs and stages
+            if (this.inputRod) {
+                this.inputRod.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (this.selectedGeometry === 'rectangle' && this.inputRod2) {
+                            this.inputRod2.focus();
+                        } else if (this.inputLength) {
+                            this.inputLength.focus();
+                        }
+                    }
+                });
+            }
+            if (this.inputRod2) {
+                this.inputRod2.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (this.inputLength) this.inputLength.focus();
+                    }
+                });
+            }
+            if (this.inputLength) {
+                this.inputLength.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.goToStage(2);
+                    }
+                });
+            }
+            if (this.inputHoney) {
+                this.inputHoney.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.goToStage(3);
+                    }
+                });
+            }
+
             // Batch Simulator Input
             if (this.inputBatchQty) {
                 this.inputBatchQty.addEventListener('input', () => this.updateBatchSummary());
@@ -618,6 +656,13 @@
 
             // Smooth scroll to top of workspace
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Auto focus stage input for lightning fast shop-floor entry
+            setTimeout(() => {
+                if (target === 1 && this.inputRod) this.inputRod.focus();
+                if (target === 2 && this.inputHoney) this.inputHoney.focus();
+                if (target === 3 && this.inputActualWeight) this.inputActualWeight.focus();
+            }, 60);
         }
 
         /**
@@ -1422,7 +1467,6 @@
                     </div>
                 </div>
             `;
-        }
         }
 
         closePrintModal() {
