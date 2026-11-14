@@ -34,7 +34,8 @@
                     }
                     const merged = Object.assign({}, window.DEFAULT_SETTINGS, parsed, {
                         rawMetalMarkup: (parsed.rawMetalMarkup === 35 || parsed.rawMetalMarkup === 35.0 || !parsed.rawMetalMarkup) ? 21.0 : parsed.rawMetalMarkup,
-                        coefficients: Object.assign({}, window.DEFAULT_SETTINGS.coefficients, parsed.coefficients || {})
+                        coefficients: Object.assign({}, window.DEFAULT_SETTINGS.coefficients, parsed.coefficients || {}),
+                        companyProfile: Object.assign({}, window.DEFAULT_SETTINGS.companyProfile, parsed.companyProfile || {})
                     });
                     localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
                     return merged;
@@ -102,8 +103,10 @@
                     id: 'calc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
                     createdAt: new Date().toISOString(),
                     itemCode: calcResult.itemCode || 'Untitled Part',
+                    drawingName: calcResult.drawingName || '',
                     geometry: calcResult.geometry,
                     rod: calcResult.rod,
+                    rod2: calcResult.rod2 || 0,
                     length: calcResult.length,
                     honey: calcResult.honey,
                     rodRate: calcResult.rodRate,

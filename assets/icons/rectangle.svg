@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+    <rect x="6" y="13" width="36" height="22" rx="2" stroke="#1A1A1A" stroke-width="2.5" fill="#F5F2EB" />
+    <circle cx="24" cy="24" r="2.5" fill="#1A1A1A" />
+    <!-- Diagonal construction markings -->
+    <line x1="6" y1="13" x2="42" y2="35" stroke="#8C8275" stroke-width="1.2" stroke-dasharray="2 2" />
+    <line x1="6" y1="35" x2="42" y2="13" stroke="#8C8275" stroke-width="1.2" stroke-dasharray="2 2" />
+</svg>

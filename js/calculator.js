@@ -25,7 +25,8 @@
         coefficients: {
             round: 0.006676,
             square: 0.007361,
-            hex: 0.0085
+            hex: 0.0085,
+            rectangle: 0.0085
         },
         lengthAdjustment: 4.0, // Fixed allowance for parting/facing in mm
         rawMetalMarkup: 21.0,  // ₹21 added to Honey market price (Rod = Honey + 21)
@@ -35,7 +36,17 @@
         currencySymbol: '₹',
         weightUnit: 'g',
         dimensionUnit: 'mm',
-        densityPreset: 'brass_standard'
+        densityPreset: 'brass_standard',
+        quoteValidityDays: 8,  // Default market price validity (days)
+        companyProfile: {
+            name: 'Satyam Brass',
+            subtitle: 'Precision Turned & Machined Components',
+            address: '534, G.I.D.C., Phase-II, Dared, Jamnagar-361 004. (Guj.) India.',
+            phone: '+91 9428888666, +91 9426229661',
+            email: 'info@satyambrass.com | satyambrass534@gmail.com',
+            website: 'www.satyambrass.com',
+            logoUrl: 'assets/satyam.jpeg'
+        }
     };
 
     // Material Presets Library
@@ -43,31 +54,31 @@
         brass_standard: {
             name: 'Brass Standard (Jamnagar Alloy / CuZn40Pb2)',
             density: 8.50,
-            coefficients: { round: 0.006676, square: 0.007361, hex: 0.0085 },
+            coefficients: { round: 0.006676, square: 0.007361, hex: 0.0085, rectangle: 0.0085 },
             description: 'Industry standard for precision turned brass electrical and hardware components.'
         },
         copper: {
             name: 'Pure Copper (Electrolytic ETP)',
             density: 8.96,
-            coefficients: { round: 0.007037, square: 0.007759, hex: 0.008960 },
+            coefficients: { round: 0.007037, square: 0.007759, hex: 0.008960, rectangle: 0.008960 },
             description: 'High conductivity copper rods for terminals and heavy electrical fasteners.'
         },
         mild_steel: {
             name: 'Mild Steel / EN1A (Free Cutting)',
             density: 7.85,
-            coefficients: { round: 0.006165, square: 0.006798, hex: 0.007850 },
+            coefficients: { round: 0.006165, square: 0.006798, hex: 0.007850, rectangle: 0.007850 },
             description: 'Automotive and general engineering turned pins, screws, and studs.'
         },
         ss304: {
             name: 'Stainless Steel 304 / 316',
             density: 7.93,
-            coefficients: { round: 0.006228, square: 0.006867, hex: 0.007930 },
+            coefficients: { round: 0.006228, square: 0.006867, hex: 0.007930, rectangle: 0.007930 },
             description: 'Corrosion resistant industrial valves, medical and marine fittings.'
         },
         aluminium: {
             name: 'Aluminium 6061 / 6082',
             density: 2.70,
-            coefficients: { round: 0.002121, square: 0.002338, hex: 0.002700 },
+            coefficients: { round: 0.002121, square: 0.002338, hex: 0.002700, rectangle: 0.002700 },
             description: 'Lightweight aerospace and thermal precision CNC turned parts.'
         }
     };
@@ -101,26 +112,34 @@
         /**
          * Calculate theoretical expected material weight per piece (in grams)
          * Formula: W = Rod² × (Length + FixedAdjustment) × Coefficient
+         * For Rectangle: W = Rod1 × Rod2 × (Length + FixedAdjustment) × Coefficient
          * 
-         * @param {string} geometry 'round' | 'square' | 'hex'
-         * @param {number} rod Diameter or across-flats dimension (mm)
+         * @param {string} geometry 'round' | 'square' | 'hex' | 'rectangle'
+         * @param {number} rod Diameter or first dimension / Width (mm)
          * @param {number} length Component length (mm)
+         * @param {number} [rod2] Second dimension / Thickness for rectangle (mm)
          * @returns {number} Expected weight in grams (unrounded)
          */
-        calculateExpectedWeight(geometry, rod, length) {
-            const r = parseFloat(rod) || 0;
+        calculateExpectedWeight(geometry, rod, length, rod2 = 0) {
+            const r1 = parseFloat(rod) || 0;
             const l = parseFloat(length) || 0;
             const allowance = parseFloat(this.settings.lengthAdjustment) || 0;
             const geom = (geometry || 'round').toLowerCase();
 
-            if (r <= 0 || l <= 0) return 0;
+            if (r1 <= 0 || l <= 0) return 0;
 
             const coeff = this.settings.coefficients[geom] !== undefined 
                 ? this.settings.coefficients[geom] 
-                : DEFAULT_SETTINGS.coefficients.round;
+                : (geom === 'rectangle' ? (this.settings.coefficients.rectangle || 0.0085) : DEFAULT_SETTINGS.coefficients.round);
 
-            // W = R² × (L + 4) × coeff
-            return r * r * (l + allowance) * coeff;
+            if (geom === 'rectangle') {
+                const r2 = parseFloat(rod2) > 0 ? parseFloat(rod2) : r1;
+                // W = Rod1 × Rod2 × (L + allowance) × coeff
+                return r1 * r2 * (l + allowance) * coeff;
+            }
+
+            // W = R² × (L + allowance) × coeff
+            return r1 * r1 * (l + allowance) * coeff;
         }
 
         /**
@@ -165,6 +184,7 @@
             const {
                 geometry = 'round',
                 rod = 0,
+                rod2 = 0,
                 length = 0,
                 honey = 0,
                 actualProductWeight = 0,
@@ -175,6 +195,7 @@
 
             const geom = (geometry || 'round').toLowerCase();
             const r = Math.max(0, parseFloat(rod) || 0);
+            const r2 = Math.max(0, parseFloat(rod2) || 0);
             const l = Math.max(0, parseFloat(length) || 0);
             const h = Math.max(0, parseFloat(honey) || 0);
             const actualWeight = Math.max(0, parseFloat(actualProductWeight) || 0);
@@ -182,7 +203,7 @@
             const targetProfitPct = Math.max(0, parseFloat(profitPercent !== undefined && profitPercent !== null && profitPercent !== '' ? profitPercent : this.settings.defaultProfitPercent) || 0);
 
             // 1. Expected Material Weight (g)
-            const expectedWeight = this.calculateExpectedWeight(geom, r, l);
+            const expectedWeight = this.calculateExpectedWeight(geom, r, l, r2);
 
             // 2. Market Rates
             const rates = this.calculateRates(h);
@@ -232,6 +253,7 @@
                 itemCode: itemCode || 'A-1',
                 geometry: geom,
                 rod: r,
+                rod2: r2,
                 length: l,
                 lengthAdjustment: this.settings.lengthAdjustment,
                 coefficientUsed: this.settings.coefficients[geom] || 0,

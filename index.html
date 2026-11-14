@@ -14,11 +14,11 @@
         <div class="header-container">
             <div class="brand-section">
                 <div class="brand-logo">
-                    <img src="assets/favicon.svg" alt="PRECIMETAL Logo">
+                    <img id="app-header-logo" src="assets/satyam.jpeg" alt="Satyam Brass Logo" style="object-fit: contain;">
                 </div>
                 <div>
-                    <div class="brand-title">PRECIMETAL</div>
-                    <div class="brand-sub">Metal Weight & Costing <span id="live-clock" style="display:none;"></span></div>
+                    <div class="brand-title" id="app-header-title">SATYAM BRASS</div>
+                    <div class="brand-sub" id="app-header-sub">Precision Turned & Machined Components <span id="live-clock" style="display:none;"></span></div>
                 </div>
             </div>
 
@@ -68,12 +68,15 @@
 
                 <!-- STAGE 1: GEOMETRY & ROD DIMENSIONS -->
                 <section id="stage-panel-1" class="stage-panel clean-card" data-stage="1">
-                    <div class="card-head">
+                    <div class="card-head" style="flex-wrap: wrap; gap: 8px;">
                         <h2 class="card-title">1. Metal Profile & Dimensions</h2>
-                        <input type="text" id="input-item-code" class="clean-input" value="Item A-1" placeholder="Part Ref" style="width: 120px; padding: 6px 10px; font-size: 0.82rem;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="input-item-code" class="clean-input" value="Item A-1" placeholder="Item Name" style="width: 120px; padding: 6px 10px; font-size: 0.82rem;" title="Item Name">
+                            <input type="text" id="input-drawing-name" class="clean-input" value="DWG-001" placeholder="Drawing Ref" style="width: 105px; padding: 6px 10px; font-size: 0.82rem;" title="Drawing Name / Ref">
+                        </div>
                     </div>
 
-                    <!-- 3 Clean Geometry Buttons -->
+                    <!-- 4 Clean Geometry Buttons -->
                     <div class="geom-picker">
                         <div class="geom-btn geom-card active" data-geometry="round">
                             <img src="assets/icons/round.svg" alt="Round">
@@ -92,14 +95,20 @@
                             <div class="lbl">Hexagon</div>
                             <div class="sub">HEX (mm)</div>
                         </div>
+
+                        <div class="geom-btn geom-card" data-geometry="rectangle">
+                            <img src="assets/icons/rectangle.svg" alt="Rectangle">
+                            <div class="lbl">Rectangle</div>
+                            <div class="sub">W × T (mm)</div>
+                        </div>
                     </div>
 
                     <!-- Rod Dimension Inputs -->
                     <div class="input-row">
-                        <div class="field-group">
+                        <div class="field-group" id="group-rod1">
                             <label class="field-label" for="input-rod">
-                                <span>Rod Size (R)</span>
-                                <span class="field-hint">Across flats / Dia</span>
+                                <span id="lbl-rod1">Rod Size (R)</span>
+                                <span class="field-hint" id="hint-rod1">Across flats / Dia</span>
                             </label>
                             <div class="input-box">
                                 <input type="number" id="input-rod" class="clean-input" inputmode="decimal" step="0.01" min="0" value="" placeholder="0.00">
@@ -114,7 +123,26 @@
                             </div>
                         </div>
 
-                        <div class="field-group">
+                        <!-- Rod 2 (Thickness) - Visible only for Rectangle -->
+                        <div class="field-group" id="group-rod2" style="display: none;">
+                            <label class="field-label" for="input-rod2">
+                                <span>Thickness / Rod 2 (T)</span>
+                                <span class="field-hint">Height / Thickness</span>
+                            </label>
+                            <div class="input-box">
+                                <input type="number" id="input-rod2" class="clean-input" inputmode="decimal" step="0.01" min="0" value="" placeholder="0.00">
+                                <span class="unit-tag">mm</span>
+                            </div>
+                            <div class="chips-bar">
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod2').value='3.00'; window.precimetalApp.recalculate();">3.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod2').value='5.00'; window.precimetalApp.recalculate();">5.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod2').value='6.00'; window.precimetalApp.recalculate();">6.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod2').value='8.00'; window.precimetalApp.recalculate();">8.0</button>
+                                <button type="button" class="touch-chip" onclick="document.getElementById('input-rod2').value='10.00'; window.precimetalApp.recalculate();">10.0</button>
+                            </div>
+                        </div>
+
+                        <div class="field-group" id="group-length">
                             <label class="field-label" for="input-length">
                                 <span>Finished Length (L)</span>
                                 <span class="field-hint">+4mm allowance</span>
@@ -518,10 +546,71 @@
 
                 <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
                     <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">Geometry Coefficients</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                        <input type="number" id="setting-coeff-round" class="clean-input" step="0.000001" value="0.006676" placeholder="Round">
-                        <input type="number" id="setting-coeff-square" class="clean-input" step="0.000001" value="0.007361" placeholder="Square">
-                        <input type="number" id="setting-coeff-hex" class="clean-input" step="0.000001" value="0.008500" placeholder="Hex">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        <div>
+                            <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Round</label>
+                            <input type="number" id="setting-coeff-round" class="clean-input" step="0.000001" value="0.006676" placeholder="Round">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Square</label>
+                            <input type="number" id="setting-coeff-square" class="clean-input" step="0.000001" value="0.007361" placeholder="Square">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Hex</label>
+                            <input type="number" id="setting-coeff-hex" class="clean-input" step="0.000001" value="0.008500" placeholder="Hex">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Rectangle</label>
+                            <input type="number" id="setting-coeff-rectangle" class="clean-input" step="0.000001" value="0.008500" placeholder="Rectangle">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+                    <div style="font-weight: 700; font-size: 0.85rem; margin-bottom: 8px;">🏢 Company Profile & Quotation Branding</div>
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-name">Company Name</label>
+                            <input type="text" id="setting-company-name" class="clean-input" value="Satyam Brass">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-sub">Company Subtitle / Tagline</label>
+                            <input type="text" id="setting-company-sub" class="clean-input" value="Precision Turned & Machined Components">
+                        </div>
+                    </div>
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-address">Factory Address</label>
+                            <input type="text" id="setting-company-address" class="clean-input" value="534, G.I.D.C., Phase-II, Dared, Jamnagar-361 004. (Guj.) India.">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-phone">Phone / Mobile</label>
+                            <input type="text" id="setting-company-phone" class="clean-input" value="+91 9428888666, +91 9426229661">
+                        </div>
+                    </div>
+                    <div class="input-row" style="margin-bottom: 8px;">
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-email">Email Address(es)</label>
+                            <input type="text" id="setting-company-email" class="clean-input" value="info@satyambrass.com | satyambrass534@gmail.com">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label" for="setting-company-website">Website</label>
+                            <input type="text" id="setting-company-website" class="clean-input" value="www.satyambrass.com">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <label class="touch-chip" style="cursor: pointer; margin: 0;">
+                                🖼️ Switch Logo Image
+                                <input type="file" id="setting-logo-file" accept="image/*" style="display: none;">
+                            </label>
+                            <button type="button" id="btn-reset-logo" class="touch-chip">Reset to Satyam Logo</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <label for="setting-quote-validity" style="font-size: 0.76rem; font-weight: 600;">Default Validity:</label>
+                            <input type="number" id="setting-quote-validity" class="clean-input" style="width: 70px; padding: 4px 6px;" min="1" max="90" value="8">
+                            <span style="font-size: 0.74rem;">days</span>
+                        </div>
                     </div>
                 </div>
 
@@ -581,39 +670,56 @@
 
     <!-- PRINT / QUOTE MODAL -->
     <div id="modal-print" class="modal-backdrop">
-        <div class="modal-box" style="max-width: 800px;">
+        <div class="modal-box" style="max-width: 820px;">
             <div class="modal-head">
-                <div class="modal-heading">📄 Technical Quotation & Job Work Order</div>
+                <div class="modal-heading">📄 Commercial Quotation & Client Work Order</div>
                 <button type="button" id="btn-close-print" class="modal-close">&times;</button>
             </div>
             <div class="modal-body" style="padding: 16px 20px;">
                 <!-- Quote Configuration & Job Selection Bar (Hidden when printing) -->
                 <div class="quote-toolbar no-print" style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Quotation Settings & Source</span>
-                        <span id="quote-source-status" style="font-size: 0.75rem; color: var(--accent-olive); font-weight: 600;">Live Active Calculation</span>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                        <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Quotation Settings & Parameters</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <select id="quote-format-select" class="clean-input" style="font-size: 0.76rem; padding: 4px 8px; font-weight: 600;">
+                                <option value="commercial" selected>📄 Commercial Client Quotation (Standard PDF)</option>
+                                <option value="internal">🏭 Internal Factory Costing Sheet</option>
+                            </select>
+                            <span id="quote-source-status" style="font-size: 0.75rem; color: var(--accent-olive); font-weight: 600;">Live Active Calculation</span>
+                        </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px; margin-bottom: 10px;">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
                         <div>
-                            <label for="quote-job-select" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Job to Quote:</label>
-                            <select id="quote-job-select" class="clean-input" style="font-size: 0.84rem; padding: 7px 10px; font-weight: 600; width: 100%;">
+                            <label for="quote-job-select" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Select Job to Quote:</label>
+                            <select id="quote-job-select" class="clean-input" style="font-size: 0.82rem; padding: 6px 10px; font-weight: 600; width: 100%;">
                                 <option value="current">⚡ Current Active Calculation</option>
                             </select>
                         </div>
                         <div>
-                            <label for="quote-batch-qty" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Order Quantity (pcs):</label>
-                            <input type="number" id="quote-batch-qty" class="clean-input" value="1000" min="1" step="100" style="font-size: 0.84rem; padding: 7px 10px; font-weight: 600; width: 100%;">
+                            <label for="quote-client-name" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Quotation For / Buyer Name:</label>
+                            <input type="text" id="quote-client-name" class="clean-input" placeholder="e.g. Acme Engineering Works" style="font-size: 0.82rem; padding: 6px 10px; width: 100%;">
                         </div>
                     </div>
-                    <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
                         <div>
-                            <label for="quote-client-name" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Client / Buyer Name (Optional):</label>
-                            <input type="text" id="quote-client-name" class="clean-input" placeholder="e.g. Acme Precision Products Ltd." style="font-size: 0.84rem; padding: 7px 10px; width: 100%;">
+                            <label for="quote-item-name" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Item Name:</label>
+                            <input type="text" id="quote-item-name" class="clean-input" placeholder="Item A-1" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
                         </div>
                         <div>
-                            <label for="quote-ref-no" style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Quotation / PO Ref #:</label>
-                            <input type="text" id="quote-ref-no" class="clean-input" placeholder="QUO-001" style="font-size: 0.84rem; padding: 7px 10px; width: 100%;">
+                            <label for="quote-drawing-name" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Drawing Name / Ref:</label>
+                            <input type="text" id="quote-drawing-name" class="clean-input" placeholder="DWG-001" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
                         </div>
+                        <div>
+                            <label for="quote-batch-qty" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Quantity (pcs):</label>
+                            <input type="number" id="quote-batch-qty" class="clean-input" value="1000" min="1" step="100" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
+                        </div>
+                        <div>
+                            <label for="quote-validity-days" style="font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 3px;">Validity (Days):</label>
+                            <input type="number" id="quote-validity-days" class="clean-input" value="8" min="1" max="90" style="font-size: 0.82rem; padding: 6px 8px; width: 100%;">
+                        </div>
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <input type="hidden" id="quote-ref-no" value="">
                     </div>
                 </div>
 
